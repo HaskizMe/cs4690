@@ -41,6 +41,55 @@
       "date": "1/10/2022, 7:27:40 PM",
       "text": "Initial jquery practicum works.",
       "id": "LMH7POH"
+    },
+    {
+      "id": "dcba7577-c505-4290-bfd6-b52932325b91",
+      "courseId": "cs4660",
+      "uvuId": "10111111",
+      "date": "9/11/2025, 11:40:54 AM",
+      "text": "this is a test"
+    },
+    {
+      "id": "add16e06-7e51-4e11-a9c6-0c69917b8bda",
+      "courseId": "cs4660",
+      "uvuId": "10111111",
+      "date": "9/11/2025, 11:40:54 AM",
+      "text": "this is a test"
+    },
+    {
+      "id": "85569678-f9b7-4c35-ab95-9fe4139e45e6",
+      "courseId": "cs4660",
+      "uvuId": "10111111",
+      "date": "9/11/2025, 11:42:28 AM",
+      "text": "this is a test2"
+    },
+    {
+      "id": "9172b5c7-1e7e-46de-8c4a-7aaf41b555a7",
+      "courseId": "cs4660",
+      "uvuId": "10111111",
+      "date": "9/11/2025, 11:43:18 AM",
+      "text": "test3"
+    },
+    {
+      "id": "041bd7bc-6846-4f9e-a926-ce58014815d2",
+      "courseId": "cs4660",
+      "uvuId": "10111111",
+      "date": "9/11/2025, 12:08:22 PM",
+      "text": "test4"
+    },
+    {
+      "id": "ed7db251-b57b-4760-a134-f9a62089da36",
+      "courseId": "cs4660",
+      "uvuId": "10111111",
+      "date": "9/11/2025, 12:08:36 PM",
+      "text": "a"
+    },
+    {
+      "id": "cc8e943a-0619-4d64-ada4-da73c60d041a",
+      "courseId": "cs4660",
+      "uvuId": "10111111",
+      "date": "9/11/2025, 12:08:48 PM",
+      "text": "a"
     }
   ],
   "courses": [

@@ -95,7 +95,7 @@ ul > li {
 .form-section-header {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-color);
 }
 
 .theme-toggle-container {
