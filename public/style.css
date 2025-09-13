@@ -11,6 +11,7 @@
   --button-bg: #000000;
   --button-text: #ffffff;
   --hover-bg: #f8f8f8;
+  --uvu-color: #275038;
 }
 
 [data-theme="dark"] {
@@ -30,8 +31,9 @@
 
 body {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
   height: 100vh;
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -67,7 +69,7 @@ ul > li {
 }
 
 .add-log-button {
-  background-color: var(--button-bg);
+  background-color: var(--uvu-color);
   color: var(--button-text);
   border: none;
   border-radius: 6px;
@@ -87,8 +89,8 @@ ul > li {
 }
 
 .add-log-button:disabled {
-  background-color: #ccc;
-  color: #666;
+  background-color: #27503856;
+  color: rgb(255, 255, 255);
   cursor: not-allowed;
 }
 
@@ -135,4 +137,27 @@ input, select, textarea {
   background-color: var(--input-bg);
   color: var(--text-color);
   border-color: var(--border-color);
+}
+
+.logo-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.top-bar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 20px;
+    background-color: var(--uvu-color);
+}
+.main-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

@@ -1,5 +1,5 @@
-// const BASE_URL = 'https://json-server-ojuzebdv--3000.local.webcontainer.io';
-const BASE_URL = 'http://localhost:3000';
+// const BASE_URL = 'https://json-server-ojuzebdv--3000.local.webcontainer.io'; // for stackblitz
+const BASE_URL = 'http://localhost:3000'; // for local use
 const THEME_KEY = 'preferred-theme';
 
 function getSystemPreference() {
@@ -30,23 +30,25 @@ function setTheme(theme, themeIconEl) {
 
 // Fetch logs function
 async function fetchLogs(courseId, uvuId) {
-  const url = `${BASE_URL}/logs?courseId=${courseId}&uvuId=${uvuId}`;
-  const res = await fetch(url, { method: 'GET', cache: 'no-cache' });
-  if (res.status === 200 || res.status === 304) return res.json();
-  throw new Error('An error occurred');
+  try {
+    const response = await axios.get(`${BASE_URL}/logs`, {
+      params: { courseId, uvuId },
+      headers: { 'Cache-Control': 'no-cache' }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching logs:', error);
+    throw new Error('An error occurred while fetching logs');
+  }
 }
 
 // Fetch courses function
 async function fetchCourses() {
   try {
-    const res = await fetch(`${BASE_URL}/api/v1/courses`);
-    if (!res.ok) {
-      console.error('Failed to fetch courses:', res.status);
-      return [];
-    }
-    return res.json();
-  } catch (err) {
-    console.error('Network error:', err);
+    const response = await axios.get(`${BASE_URL}/api/v1/courses`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch courses:', error);
     return [];
   }
 }
@@ -237,7 +239,7 @@ async function addLog() {
   const uvuId = document.getElementById('uvuId').value;
 
   const id = crypto.randomUUID();
-  const body = {
+  const data = {
     id,
     courseId,
     uvuId,
@@ -245,19 +247,18 @@ async function addLog() {
     text,
   };
 
-  const res = await fetch(`${BASE_URL}/logs`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok && res.status !== 304) {
-    throw new Error(`POST failed: ${res.status}`);
+  try {
+    await axios.post(`${BASE_URL}/logs`, data, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    const logs = await fetchLogs(courseId, uvuId);
+    listLogOutput(logs);
+    console.log('Log added successfully!');
+  } catch (error) {
+    console.error('Error adding log:', error);
+    throw new Error(`Failed to add log: ${error.message}`);
   }
-
-  const logs = await fetchLogs(courseId, uvuId);
-  listLogOutput(logs);
-  console.log('it worked!');
 }
 
 // Main listener for DOMContentLoaded
