@@ -107,7 +107,7 @@ function isButtonDisabled() {
   const hasLogs = logs.querySelectorAll('li').length > 0;
   const validUvu = uvuInput.value.length === 8;
 
-  addLogButton.disabled = !(hasText && hasLogs && validUvu);
+  addLogButton.disabled = !(hasText && validUvu);
 }
 
 // Theme initialization function
