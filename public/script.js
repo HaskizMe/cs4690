@@ -1,9 +1,9 @@
-// const BASE_URL = 'https://json-server-ojuzebdv--3000.local.webcontainer.io'; // for stackblitz
-const BASE_URL = 'http://localhost:3000'; // for local use
+const BASE_URL = 'http://localhost:3000';
 const THEME_KEY = 'preferred-theme';
 
 function getSystemPreference() {
-  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+  return window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches
     ? 'dark'
     : 'light';
 }
@@ -12,231 +12,250 @@ function getStoredTheme() {
   return localStorage.getItem(THEME_KEY);
 }
 
-function setTheme(theme, themeIconEl) {
-  document.documentElement.setAttribute('data-theme', theme);
-  if (themeIconEl) {
-    themeIconEl.textContent = theme === 'dark' ? '☀️' : '🌙';
+function setTheme(theme, $themeIcon) {
+  $('html').attr('data-theme', theme);
 
+  const isDark = theme === 'dark';
+  const $body = $('body');
+  const $form = $('#formCard'); // make sure your form wrapper has id="formCard"
+
+  // Body/Form via Bootstrap utilities
+  $body.toggleClass('bg-dark', isDark).toggleClass('bg-white', !isDark);
+
+  $form
+    .toggleClass('bg-dark text-white', isDark)
+    .toggleClass('bg-white text-dark', !isDark);
+
+  if ($themeIcon && $themeIcon.length) {
+    $themeIcon.text(isDark ? '☀️' : '🌙');
   }
   localStorage.setItem(THEME_KEY, theme);
 
   // Debug
   console.log({
     'User Pref': getStoredTheme() || 'unknown',
-    'Browser Pref': window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
-    'OS Pref': getSystemPreference()
+    'Browser Pref': window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light',
+    'OS Pref': getSystemPreference(),
   });
 }
 
-// Fetch logs function
 async function fetchLogs(courseId, uvuId) {
   try {
-    const response = await axios.get(`${BASE_URL}/logs`, {
-      params: { courseId, uvuId },
-      headers: { 'Cache-Control': 'no-cache' }
+    const data = await $.ajax({
+      url: `${BASE_URL}/logs`,
+      method: 'GET',
+      data: { courseId, uvuId },
+      cache: false, // similar intent to your no-cache header
     });
-    return response.data;
+    return data;
   } catch (error) {
     console.error('Error fetching logs:', error);
     throw new Error('An error occurred while fetching logs');
   }
 }
 
-// Fetch courses function
 async function fetchCourses() {
   try {
-    const response = await axios.get(`${BASE_URL}/api/v1/courses`);
-    return response.data;
+    const data = await $.ajax({
+      url: `${BASE_URL}/api/v1/courses`,
+      method: 'GET',
+    });
+    return data;
   } catch (error) {
     console.error('Failed to fetch courses:', error);
     return [];
   }
 }
 
-// List log output function
 function listLogOutput(logs) {
-  const ul = document.querySelector('ul[data-cy="logs"]');
-  const logArea = document.querySelector('.log-area');
+  const $ul = $('#logs');
+  const $wrapper = $('#logsWrapper');
 
-  ul.innerHTML = '';
-  logArea.style.display = logs.length > 0 ? 'flex' : 'none';
+  $ul.empty();
 
-  logs.forEach((log) => {
-    const li = document.createElement('li');
+  if (logs && logs.length > 0) {
+    $wrapper.removeClass('d-none');
 
-    const dateDiv = document.createElement('div');
-    const date = document.createElement('h4');
-    date.textContent = log.date;
-    dateDiv.appendChild(date);
-    li.appendChild(dateDiv);
+    logs.forEach((log) => {
+      const $li = $('<li>', { class: 'list-group-item' });
 
-    const p = document.createElement('p');
-    p.textContent = log.text;
-    li.appendChild(p);
+      // date header
+      $('<h6>', { class: 'mb-1', text: log.date }).appendTo($li);
 
-    li.addEventListener('click', () => {
-      p.classList.toggle('hidden');
+      // body text
+      const $p = $('<p>', { class: 'mb-0 small', text: log.text }).appendTo(
+        $li
+      );
+
+      // click to toggle the text only
+      $li.on('click', () => {
+        $p.toggleClass('d-none');
+      });
+
+      $ul.append($li);
     });
-
-    ul.appendChild(li);
-  });
+  } else {
+    $wrapper.addClass('d-none');
+  }
 
   isButtonDisabled();
 }
 
-// Clear logs function
 function clearLogs() {
-  const ul = document.querySelector('ul[data-cy="logs"]');
-  const logArea = document.querySelector('.log-area');
-  const status = document.getElementById('uvuIdDisplay');
+  const $ul = $('#logs');
+  const $wrapper = $('#logsWrapper');
+  const $status = $('#uvuIdDisplay');
 
-  status.textContent = '';
-  ul.innerHTML = '';
-  logArea.style.display = 'none';
+  $status.text('');
+  $ul.empty();
+  $wrapper.addClass('d-none');
+
   isButtonDisabled();
 }
 
-// Button disabled function
 function isButtonDisabled() {
-  const addLogButton = document.querySelector('[data-cy="add_log_btn"]');
-  const logs = document.querySelector('ul[data-cy="logs"]');
-  const textArea = document.querySelector('[data-cy="log_textarea"]');
-  const uvuInput = document.getElementById('uvuId');
+  const $addLogButton = $('[data-cy="add_log_btn"]');
+  const $textArea = $('[data-cy="log_textarea"]');
+  const $uvuInput = $('#uvuId');
 
-  const hasText = textArea.value.trim().length > 0;
-  const hasLogs = logs.querySelectorAll('li').length > 0;
-  const validUvu = uvuInput.value.length === 8;
+  if (!$addLogButton.length || !$textArea.length || !$uvuInput.length) return;
 
-  addLogButton.disabled = !(hasText && validUvu);
+  const hasText = ($textArea.val() || '').trim().length > 0;
+  const validUvu = ($uvuInput.val() || '').length === 8;
+
+  // enable only when there's text AND UVU is valid
+  $addLogButton.prop('disabled', !(hasText && validUvu));
 }
 
-// Theme initialization function
 function initTheme() {
-  const themeToggle = document.getElementById('themeToggle');
-  const themeIcon = document.querySelector('.theme-icon');
+  const $themeToggle = $('#themeToggle');
+  const $themeIcon = $('.theme-icon');
 
-  // Set initial theme
+  // Set initial theme (stored > system > light)
   const savedPref = getStoredTheme();
   const systemPref = getSystemPreference();
-  // Set theme based on saved preference or system preference or default to light
-  setTheme(savedPref || systemPref || 'light', themeIcon);
+  setTheme(savedPref || systemPref || 'light', $themeIcon);
 
-  // Theme toggle handler
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      setTheme(current === 'dark' ? 'light' : 'dark', themeIcon);
-    });
-  }
+  $themeToggle.on('click', () => {
+    const current = $('html').attr('data-theme') || 'light';
+    setTheme(current === 'dark' ? 'light' : 'dark', $themeIcon);
+  });
 
   // React to system changes only if user hasn't chosen
   const mq = window.matchMedia('(prefers-color-scheme: dark)');
   if (mq && mq.addEventListener) {
     mq.addEventListener('change', (e) => {
       if (!getStoredTheme()) {
-        setTheme(e.matches ? 'dark' : 'light', themeIcon);
+        setTheme(e.matches ? 'dark' : 'light', $themeIcon);
       }
     });
   }
 }
 
-// Course options initialization function
 async function initCourseOptions() {
-  const selector = document.getElementById('course');
-  if (!selector) return;
+  const $selector = $('#course');
+  if (!$selector.length) return;
 
   const courses = await fetchCourses();
   courses.forEach((course) => {
-    const option = document.createElement('option');
-    option.value = course.id;
-    option.textContent = course.display;
-    selector.appendChild(option);
+    $('<option>', { value: course.id, text: course.display }).appendTo(
+      $selector
+    );
   });
 }
 
-// Course UI initialization function
 function initCourseUI() {
-  const selector = document.getElementById('course');
-  const inputBox = document.getElementById('uvuId');
-  const status = document.getElementById('uvuIdDisplay');
-  const textArea = document.querySelector('[data-cy="log_textarea"]');
+  const $selector = $('#course');
+  const $inputBox = $('#uvuId');
+  const $status = $('#uvuIdDisplay');
+  const $textArea = $('[data-cy="log_textarea"]');
 
-  if (!selector || !inputBox || !status || !textArea) return;
+  if (
+    !$selector.length ||
+    !$inputBox.length ||
+    !$status.length ||
+    !$textArea.length
+  )
+    return;
 
   // Initial visibility
-  inputBox.style.display = selector.value ? 'block' : 'none';
+  $inputBox.toggle(!!$selector.val());
 
-  selector.addEventListener('change', async () => {
-    if (!selector.value) {
-      inputBox.style.display = 'none';
+  $selector.on('change', async () => {
+    if (!$selector.val()) {
+      $inputBox.hide();
       clearLogs();
       return;
     }
 
-    inputBox.style.display = 'block';
+    $inputBox.show();
 
     // If UVU ID already complete, try fetching immediately
-    if (inputBox.value.length === 8) {
+    if (($inputBox.val() || '').length === 8) {
       try {
-        const response = await fetchLogs(selector.value, inputBox.value);
+        const response = await fetchLogs($selector.val(), $inputBox.val());
         if (response.length > 0) {
-          status.textContent = `Student Logs for ${inputBox.value}:`;
+          $status.text(`Student Logs for ${$inputBox.val()}:`);
           listLogOutput(response);
         } else {
-          status.textContent = 'No Logs Found!';
+          $status.text('No Logs Found!');
           clearLogs();
         }
       } catch {
-        status.textContent = 'Error!';
+        $status.text('Error!');
         clearLogs();
       }
     }
   });
 
   // Enable/disable add button based on textarea edits
-  textArea.addEventListener('input', isButtonDisabled);
+  $textArea.on('input', isButtonDisabled);
 }
 
-// UVU ID initialize function
 function initUvuInput() {
-  const uvuInput = document.getElementById('uvuId');
-  const courseSelector = document.getElementById('course');
-  const status = document.getElementById('uvuIdDisplay');
+  const $uvuInput = $('#uvuId');
+  const $courseSelector = $('#course');
+  const $status = $('#uvuIdDisplay');
 
-  if (!uvuInput || !courseSelector || !status) return;
+  if (!$uvuInput.length || !$courseSelector.length || !$status.length) return;
 
-  uvuInput.addEventListener('input', async () => {
+  $uvuInput.on('input', async () => {
     // digits only, 8 chars
-    uvuInput.value = uvuInput.value.replace(/\D/g, '').slice(0, 8);
+    $uvuInput.val(($uvuInput.val() || '').replace(/\D/g, '').slice(0, 8));
 
-    if (uvuInput.value.length !== 8) {
+    if (($uvuInput.val() || '').length !== 8) {
       clearLogs();
       return;
     }
 
-    const courseId = courseSelector.value;
-    const uvuId = uvuInput.value;
+    const courseId = $courseSelector.val();
+    const uvuId = $uvuInput.val();
     try {
       const response = await fetchLogs(courseId, uvuId);
       if (response.length > 0) {
-        status.textContent = `Student Logs for ${uvuId}`;
+        $status.text(`Student Logs for ${uvuId}`);
         listLogOutput(response);
       } else {
-        status.textContent = 'No Logs Found!';
+        $status.text('No Logs Found!');
         clearLogs();
       }
     } catch {
-      status.textContent = 'Error!';
+      $status.text('Error!');
       clearLogs();
     }
   });
 }
 
-// Add log function
 async function addLog() {
-  const text = document.querySelector('[data-cy="log_textarea"]').value;
-  const courseId = document.getElementById('course').value;
-  const uvuId = document.getElementById('uvuId').value;
+  const $textArea = $('[data-cy="log_textarea"]');
+  const $course = $('#course');
+  const $uvu = $('#uvuId');
+
+  const text = $textArea.val();
+  const courseId = $course.val();
+  const uvuId = $uvu.val();
 
   const id = crypto.randomUUID();
   const data = {
@@ -248,10 +267,13 @@ async function addLog() {
   };
 
   try {
-    await axios.post(`${BASE_URL}/logs`, data, {
-      headers: { 'Content-Type': 'application/json' }
+    await $.ajax({
+      url: `${BASE_URL}/logs`,
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(data),
     });
-    
+
     const logs = await fetchLogs(courseId, uvuId);
     listLogOutput(logs);
     console.log('Log added successfully!');
@@ -261,11 +283,10 @@ async function addLog() {
   }
 }
 
-// Main listener for DOMContentLoaded
-document.addEventListener('DOMContentLoaded', async () => {
+$(async function () {
   initTheme();
-  await initCourseOptions();   // populate dropdown first
-  initCourseUI();              // wire course selector + textarea rules
-  initUvuInput();              // wire UVU input behavior
-  isButtonDisabled();          // set initial button state
+  await initCourseOptions(); // populate dropdown first
+  initCourseUI(); // wire course selector + textarea rules
+  initUvuInput(); // wire UVU input behavior
+  isButtonDisabled(); // set initial button state
 });
