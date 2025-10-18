@@ -1,4 +1,3 @@
-const BASE_URL = 'http://localhost:3000';
 const THEME_KEY = 'preferred-theme';
 
 function getSystemPreference() {
@@ -44,7 +43,7 @@ function setTheme(theme, $themeIcon) {
 async function fetchLogs(courseId, uvuId) {
   try {
     const data = await $.ajax({
-      url: `${BASE_URL}/logs`,
+      url: `/logs`,
       method: 'GET',
       data: { courseId, uvuId },
       cache: false, // similar intent to your no-cache header
@@ -59,7 +58,7 @@ async function fetchLogs(courseId, uvuId) {
 async function fetchCourses() {
   try {
     const data = await $.ajax({
-      url: `${BASE_URL}/api/v1/courses`,
+      url: `/api/v1/courses`,
       method: 'GET',
     });
     return data;
@@ -268,7 +267,7 @@ async function addLog() {
 
   try {
     await $.ajax({
-      url: `${BASE_URL}/logs`,
+      url: `/logs`,
       method: 'POST',
       contentType: 'application/json',
       data: JSON.stringify(data),
