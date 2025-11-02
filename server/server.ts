@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
 import { coursesController } from "./controllers/courses-controller";
+import { logsController } from "./controllers/logs-controller";
 
 // Load environment variables
 dotenv.config();
@@ -15,7 +16,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
 
 // MongoDB Connection
-const mongoUri = `mongodb+srv://${process.env.MONGO_ADMIN_USER}:${process.env.MONGO_ADMIN_PASSWORD}@cs4690.me7kbzf.mongodb.net/?appName=cs4690`;
+const mongoUri = `mongodb+srv://${process.env.MONGO_ADMIN_USER}:${process.env.MONGO_ADMIN_PASSWORD}@cs4690.me7kbzf.mongodb.net/courses?appName=cs4690`;
 
 mongoose
     .connect(mongoUri)
@@ -23,7 +24,9 @@ mongoose
     .catch((err) => console.error("MongoDB connection error:", err));
 
 // Routes
-app.get("/api/health", coursesController.getHealthCheck);
+app.get("/api/courses", coursesController.getCourses);
+app.get("/api/logs", logsController.getLogs);
+app.post("/api/logs", logsController.addLog);
 
 // Serve frontend
 app.get("/", (req: Request, res: Response) => {
