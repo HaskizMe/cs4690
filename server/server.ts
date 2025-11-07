@@ -25,8 +25,11 @@ mongoose
 
 // Routes
 app.get("/api/courses", coursesController.getCourses);
+app.post("/api/courses", coursesController.addCourse);
+app.delete("/api/courses/:courseId", coursesController.deleteCourse);
 app.get("/api/logs", logsController.getLogs);
 app.post("/api/logs", logsController.addLog);
+app.delete("/api/logs/:logId", logsController.deleteLog);
 
 // Serve frontend
 app.get("/", (req: Request, res: Response) => {

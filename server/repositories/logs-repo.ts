@@ -12,9 +12,12 @@ const logSchema = new Schema<ILog>({
 export const Log = model<ILog>("logs", logSchema);
 
 export const logsRepository = {
-    getLogsByCourseAndUvu: async (courseId: string, uvuId: string) => {
+    getLogs: async (courseId?: string, uvuId?: string) => {
         try {
-            const logs = await Log.find({ courseId, uvuId });
+            const query: { courseId?: string; uvuId?: string } = {};
+            if (courseId) query.courseId = courseId;
+            if (uvuId) query.uvuId = uvuId;
+            const logs = await Log.find(query);
             return logs;
         } catch (error) {
             console.error("Error fetching logs:", error);
@@ -26,6 +29,14 @@ export const logsRepository = {
             return await Log.create(log);
         } catch (error) {
             console.error("Error creating log:", error);
+            throw error;
+        }
+    },
+    deleteLog: async (logId: string) => {
+        try {
+            return await Log.deleteOne({ id: logId });
+        } catch (error) {
+            console.error("Error deleting log:", error);
             throw error;
         }
     },

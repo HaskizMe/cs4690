@@ -8,4 +8,7 @@ export const coursesService = {
     createCourse: async (course: ICourse) => {
         return await coursesRepository.createCourse(course);
     },
+    deleteCourse: async (courseId: string) => {
+        return await coursesRepository.deleteCourse(courseId);
+    },
 };

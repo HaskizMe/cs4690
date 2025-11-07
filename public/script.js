@@ -287,6 +287,43 @@ async function addLog() {
     }
 }
 
+async function addCourse() {
+    const $input = $("#newCourse");
+    const courseName = $input.val().trim();
+
+    if (!courseName) {
+        alert("Please enter a course name");
+        return;
+    }
+
+    const data = {
+        id: crypto.randomUUID(),
+        display: courseName,
+    };
+
+    try {
+        await $.ajax({
+            url: `/api/courses`,
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+        });
+
+        // Clear input
+        $input.val("");
+
+        // Refresh course options
+        const $selector = $("#course");
+        $selector.find("option:not(:first)").remove();
+        await initCourseOptions();
+
+        console.log("Course added successfully!");
+    } catch (error) {
+        console.error("Error adding course:", error);
+        alert("Failed to add course");
+    }
+}
+
 $(async function () {
     initTheme();
     await initCourseOptions(); // populate dropdown first

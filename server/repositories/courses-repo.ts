@@ -21,8 +21,21 @@ export const coursesRepository = {
     createCourse: async (course: ICourse) => {
         try {
             return await Course.create(course);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error creating course:", error);
+            if (error.code === 11000) {
+                const err = new Error("Course with this ID already exists");
+                (err as any).statusCode = 409;
+                throw err;
+            }
+            throw error;
+        }
+    },
+    deleteCourse: async (courseId: string) => {
+        try {
+            return await Course.deleteOne({ id: courseId });
+        } catch (error) {
+            console.error("Error deleting course:", error);
             throw error;
         }
     },
