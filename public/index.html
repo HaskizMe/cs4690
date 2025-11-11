@@ -1,169 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="color-scheme" content="light dark" />
-    <title>Student Logs</title>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="color-scheme" content="light dark" />
+        <title>Student Logs</title>
 
-    <link
-      rel="icon"
-      href="https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico"
-      type="image/x-icon"
-    />
-
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-      crossorigin="anonymous"
-    />
-  </head>
-  <body class="bg-white text-dark">
-    <!-- Top Bar (approx. your .top-bar-container) -->
-    <nav
-      id="topBar"
-      class="navbar navbar-expand navbar-dark px-3"
-      style="background-color: #275038"
-    >
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <img
-          src="https://www.uvu.edu/marketing/images/guide/bg_2-1_primary_monogram.png"
-          width="180"
-          height="80"
-          alt="UVU logo"
-          class="d-inline-block align-top"
+        <link
+            rel="icon"
+            href="https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico"
+            type="image/x-icon"
         />
-      </a>
-      <div class="ml-auto">
-        <button
-          id="themeToggle"
-          class="btn btn-outline-light rounded-circle"
-          aria-label="Toggle dark/light mode"
-          title="Toggle theme"
+
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+            crossorigin="anonymous"
+        />
+    </head>
+    <body class="bg-white text-dark">
+        <!-- Top Bar (approx. your .top-bar-container) -->
+        <nav
+            id="topBar"
+            class="navbar navbar-expand navbar-dark px-3"
+            style="background-color: #275038"
         >
-          🌓
-        </button>
-      </div>
-    </nav>
-
-    <!-- Main Container -->
-    <main
-      class="container min-vh-100 d-flex align-items-center justify-content-center py-4"
-    >
-      <!-- Card wrapper to mimic bordered form with padding and rounded corners -->
-      <div
-        id="formCard"
-        class="card shadow-sm"
-        style="max-width: 420px; width: 100%"
-      >
-        <div class="card-body">
-          <form id="logForm" class="w-100">
-            <!-- Course Select -->
-            <div class="form-group">
-              <label for="course" class="font-weight-bold">Course</label>
-              <select
-                class="form-control"
-                aria-label="Select Course"
-                id="course"
-                name="course"
-                data-cy="course_select"
-              >
-                <option selected value="">Choose Courses</option>
-              </select>
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img
+                    src="https://www.uvu.edu/marketing/images/guide/bg_2-1_primary_monogram.png"
+                    width="180"
+                    height="80"
+                    alt="UVU logo"
+                    class="d-inline-block align-top"
+                />
+            </a>
+            <div class="ml-auto">
+                <button
+                    id="themeToggle"
+                    class="btn btn-outline-light rounded-circle"
+                    aria-label="Toggle dark/light mode"
+                    title="Toggle theme"
+                >
+                    🌓
+                </button>
             </div>
+        </nav>
 
-            <!-- UVU ID -->
-            <div class="form-group">
-              <label for="uvuId" class="font-weight-bold">UVU ID</label>
-              <input
-                type="text"
-                class="form-control"
-                id="uvuId"
-                name="uvuId"
-                data-cy="uvuId_input"
-                placeholder="10234567"
-                maxlength="8"
-                inputmode="numeric"
-                pattern="\d{8}"
-                autocomplete="off"
-              />
-              <h5 id="uvuIdDisplay" data-cy="uvuIdDisplay" class="mt-2"></h5>
+        <!-- Main Container -->
+        <main
+            class="container min-vh-100 d-flex align-items-center justify-content-center py-4"
+        >
+            <!-- Card wrapper to mimic bordered form with padding and rounded corners -->
+            <div
+                id="formCard"
+                class="card shadow-sm"
+                style="max-width: 420px; width: 100%"
+            >
+                <div class="card-body">
+                    <form id="logForm" class="w-100">
+                        <!-- Add Course -->
+                        <div class="form-group">
+                            <label for="newCourse" class="font-weight-bold"
+                                >Add Course</label
+                            >
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="newCourse"
+                                    name="newCourse"
+                                    data-cy="new_course_input"
+                                    placeholder="Enter course name"
+                                    maxlength="10"
+                                    autocomplete="off"
+                                />
+                                <div class="input-group-append">
+                                    <button
+                                        type="button"
+                                        data-cy="add_course_btn"
+                                        id="addCourseBtn"
+                                        class="btn text-white"
+                                        style="background-color: #275038"
+                                        onclick="addCourse()"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Course Select -->
+                        <div class="form-group">
+                            <label for="course" class="font-weight-bold"
+                                >Course</label
+                            >
+                            <select
+                                class="form-control"
+                                aria-label="Select Course"
+                                id="course"
+                                name="course"
+                                data-cy="course_select"
+                            >
+                                <option selected value="">
+                                    Choose Courses
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- UVU ID -->
+                        <div class="form-group">
+                            <label for="uvuId" class="font-weight-bold"
+                                >UVU ID</label
+                            >
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="uvuId"
+                                name="uvuId"
+                                data-cy="uvuId_input"
+                                placeholder="10234567"
+                                maxlength="8"
+                                inputmode="numeric"
+                                pattern="\d{8}"
+                                autocomplete="off"
+                            />
+                            <h5
+                                id="uvuIdDisplay"
+                                data-cy="uvuIdDisplay"
+                                class="mt-2"
+                            ></h5>
+                        </div>
+
+                        <!-- Logs Area -->
+                        <div class="form-group">
+                            <label class="font-weight-bold">Logs</label>
+                            <!-- Scrollable bordered area -->
+                            <div
+                                id="logsWrapper"
+                                class="border rounded d-none text-dark"
+                                style="max-height: 300px; overflow: auto"
+                            >
+                                <ul
+                                    data-cy="logs"
+                                    id="logs"
+                                    class="list-group list-group-flush small"
+                                ></ul>
+                            </div>
+                        </div>
+
+                        <!-- New Log -->
+                        <div class="form-group">
+                            <label for="newLog" class="font-weight-bold"
+                                >New Log</label
+                            >
+                            <textarea
+                                id="newLog"
+                                aria-label="add log textarea"
+                                data-cy="log_textarea"
+                                class="form-control"
+                                rows="3"
+                            ></textarea>
+                        </div>
+
+                        <!-- Add Log Button -->
+                        <div class="d-flex justify-content-end">
+                            <button
+                                type="button"
+                                data-cy="add_log_btn"
+                                id="addLogBtn"
+                                class="btn text-white"
+                                style="background-color: #275038"
+                                disabled
+                                onclick="addLog()"
+                            >
+                                Add Log
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
+        </main>
 
-            <!-- Logs Area -->
-            <div class="form-group">
-              <label class="font-weight-bold">Logs</label>
-              <!-- Scrollable bordered area -->
-              <div
-                id="logsWrapper"
-                class="border rounded d-none text-dark"
-                style="max-height: 300px; overflow: auto"
-              >
-                <ul
-                  data-cy="logs"
-                  id="logs"
-                  class="list-group list-group-flush small"
-                ></ul>
-              </div>
-            </div>
+        <!-- Keep your existing scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-            <!-- New Log -->
-            <div class="form-group">
-              <label for="newLog" class="font-weight-bold">New Log</label>
-              <textarea
-                id="newLog"
-                aria-label="add log textarea"
-                data-cy="log_textarea"
-                class="form-control"
-                rows="3"
-              ></textarea>
-            </div>
-
-            <!-- Add Log Button -->
-            <div class="d-flex justify-content-end">
-              <button
-                type="button"
-                data-cy="add_log_btn"
-                id="addLogBtn"
-                class="btn text-white"
-                style="background-color: #275038"
-                disabled
-                onclick="addLog()"
-              >
-                Add Log
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </main>
-
-    <!-- Keep your existing scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-    <!-- jQuery/Popper/Bootstrap JS -->
-    <script
-      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
-      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
-      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://code.jquery.com/jquery-3.6.4.min.js"
-      integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
-      crossorigin="anonymous"
-    ></script>
-    <script src="script.js"></script>
-  </body>
+        <!-- jQuery/Popper/Bootstrap JS -->
+        <script
+            src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://code.jquery.com/jquery-3.6.4.min.js"
+            integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+            crossorigin="anonymous"
+        ></script>
+        <script src="script.js"></script>
+    </body>
 </html>
 
 <!-- DONE: move all TODOs that done above to down below here and change the label to DONE:. -->
