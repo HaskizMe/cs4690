@@ -1,2 +1,7 @@
+# Rename this file to .env and fill in values
+# For Atlas (cloud MongoDB) fill in credentials:
 MONGO_ADMIN_USER=<YOUR-MONGO-ADMIN-USER>
 MONGO_ADMIN_PASSWORD=<YOUR-MONGO-ADMIN-PASSWORD>
+
+# For local MongoDB instance uncomment this section out (optional, overrides Atlas credentials):
+# MONGO_URI=mongodb://localhost:27017/courses

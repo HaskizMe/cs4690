@@ -16,7 +16,9 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
 
 // MongoDB Connection
-const mongoUri = `mongodb+srv://${process.env.MONGO_ADMIN_USER}:${process.env.MONGO_ADMIN_PASSWORD}@cs4690.me7kbzf.mongodb.net/courses?appName=cs4690`;
+const mongoUri =
+    process.env.MONGO_URI ||
+    `mongodb+srv://${process.env.MONGO_ADMIN_USER}:${process.env.MONGO_ADMIN_PASSWORD}@cs4690.me7kbzf.mongodb.net/courses?appName=cs4690`;
 
 mongoose
     .connect(mongoUri)
