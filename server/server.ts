@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
+import cors from "cors";
 import { coursesController } from "./controllers/courses-controller";
 import { logsController } from "./controllers/logs-controller";
 import { authController } from "./controllers/auth-controller";
@@ -14,6 +15,7 @@ const app: Express = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
 
