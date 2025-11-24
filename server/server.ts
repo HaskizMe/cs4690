@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import path from "path";
 import { coursesController } from "./controllers/courses-controller";
 import { logsController } from "./controllers/logs-controller";
+import { authController } from "./controllers/auth-controller";
+import { authMiddleware, requireRole } from "./middleware/auth-middleware";
 
 // Load environment variables
 dotenv.config();
@@ -25,13 +27,22 @@ mongoose
     .then(() => console.log("Connected to MongoDB"))
     .catch((err) => console.error("MongoDB connection error:", err));
 
-// Routes
-app.get("/api/courses", coursesController.getCourses);
-app.post("/api/courses", coursesController.addCourse);
-app.delete("/api/courses/:courseId", coursesController.deleteCourse);
-app.get("/api/logs", logsController.getLogs);
-app.post("/api/logs", logsController.addLog);
-app.delete("/api/logs/:logId", logsController.deleteLog);
+// Auth Routes (no middleware required)
+app.post("/api/auth/login", authController.login);
+app.post("/api/auth/register", authController.register);
+app.post("/api/auth/logout", authController.logout);
+
+// Protected Routes (require authentication)
+app.get("/api/courses", authMiddleware, coursesController.getCourses);
+app.post("/api/courses", authMiddleware, coursesController.addCourse);
+app.delete(
+    "/api/courses/:courseId",
+    authMiddleware,
+    coursesController.deleteCourse
+);
+app.get("/api/logs", authMiddleware, logsController.getLogs);
+app.post("/api/logs", authMiddleware, logsController.addLog);
+app.delete("/api/logs/:logId", authMiddleware, logsController.deleteLog);
 
 // Serve frontend
 app.get("/", (req: Request, res: Response) => {

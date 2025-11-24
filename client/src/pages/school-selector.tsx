@@ -8,7 +8,7 @@ export default function SchoolSelector() {
             <Button onClick={() => navigate("/uvu/login")}>
                 Utah Valley University
             </Button>
-            <Button onClick={() => navigate("/uou/login")}>
+            <Button onClick={() => navigate("/uofu/login")}>
                 University of Utah
             </Button>
         </div>
