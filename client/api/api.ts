@@ -9,7 +9,7 @@ api.interceptors.request.use((config) => {
     const raw = localStorage.getItem("mega-practicum-auth-token");
     if (raw) {
         const session = JSON.parse(raw);
-        const token = session?.access_token;
+        const token = session?.token;
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }

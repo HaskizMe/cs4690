@@ -11,8 +11,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/use-auth";
 import { Link } from "react-router";
+import { validateToken } from "../../../api/auth/validate-token";
+import { toast } from "sonner";
 
 export default function Login() {
     const { school } = useParams();
@@ -23,16 +25,47 @@ export default function Login() {
 
     useEffect(() => {
         document.documentElement.className = `tenant-${school}`;
-    }, [school]);
+        const autoLogin = async () => {
+            const raw = localStorage.getItem("mega-practicum-auth-token");
+            if (raw) {
+                try {
+                    const session = JSON.parse(raw);
+                    if (session?.token) {
+                        // Validate token with server
+                        try {
+                            await validateToken();
+                            navigate(
+                                `/${session.user.tenant}/${session.user.role}`
+                            );
+                        } catch (err) {
+                            // Token is invalid or expired
+                            console.error("Token validation failed:", err);
+                            localStorage.removeItem(
+                                "mega-practicum-auth-token"
+                            );
+                        }
+                    }
+                } catch (err) {
+                    console.error("Failed to parse stored session:", err);
+                    localStorage.removeItem("mega-practicum-auth-token");
+                }
+            }
+        };
+
+        autoLogin();
+    }, [school, navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await login(username, password, school as "uvu" | "uofu");
-            // Redirect to dashboard or home page after successful login
-            navigate("/dashboard");
+            const authData = await login(
+                username,
+                password,
+                school as "uvu" | "uofu"
+            );
+            navigate(`/${school}/${authData.user.role}`);
         } catch {
-            // Error is handled by the hook and displayed below
+            toast.error("Login failed");
         }
     };
 

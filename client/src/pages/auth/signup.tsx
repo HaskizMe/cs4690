@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/use-auth";
 import { Link } from "react-router";
 import {
     Select,
@@ -21,11 +21,12 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { ChevronLeft } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Signup() {
     const { school } = useParams();
     const navigate = useNavigate();
-    const { isLoading } = useAuth();
+    const { isLoading, register } = useAuth();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -38,11 +39,15 @@ export default function Signup() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // await login(username, password, school as "uvu" | "uofu");
-            // // Redirect to dashboard or home page after successful login
-            // navigate("/dashboard");
+            const authData = await register(
+                username,
+                password,
+                school as "uvu" | "uofu",
+                role as "student" | "teacher"
+            );
+            navigate(`/${school}/${authData.user.role}`);
         } catch {
-            // Error is handled by the hook and displayed below
+            toast.error("Registration failed");
         }
     };
 
@@ -140,14 +145,6 @@ export default function Signup() {
                                     {isLoading ? "Signing Up..." : "Sign Up"}
                                 </Button>
                             </form>
-                            {/* <Link to={`/${school}/login`}>
-                                <Button
-                                    variant="default"
-                                    className="w-full bg-black hover:bg-black/80"
-                                >
-                                    Log In
-                                </Button>
-                            </Link> */}
                         </CardContent>
                     </Card>
                 </div>

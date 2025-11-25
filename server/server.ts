@@ -33,6 +33,7 @@ mongoose
 app.post("/api/auth/login", authController.login);
 app.post("/api/auth/register", authController.register);
 app.post("/api/auth/logout", authController.logout);
+app.post("/api/auth/validate-token", authController.validateToken);
 
 // Protected Routes (require authentication)
 app.get("/api/courses", authMiddleware, coursesController.getCourses);

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { authService } from "../services/auth-services";
+import { jwtUtils } from "../utils/jwt";
 
 export const authController = {
     // Register endpoint
@@ -65,6 +66,24 @@ export const authController = {
             });
         } catch (error) {
             console.error("Logout controller error:", error);
+            res.status(500).json({
+                success: false,
+                message: "Internal server error",
+                error: error instanceof Error ? error.message : "Unknown error",
+            });
+        }
+    },
+
+    validateToken: async (req: Request, res: Response) => {
+        try {
+            const token = jwtUtils.extractToken(req.headers.authorization!);
+            jwtUtils.verifyToken(token!);
+            res.status(200).json({
+                success: true,
+                message: "Token is valid",
+            });
+        } catch (error) {
+            console.error("Validate token controller error:", error);
             res.status(500).json({
                 success: false,
                 message: "Internal server error",
