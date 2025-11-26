@@ -6,6 +6,7 @@ import cors from "cors";
 import { coursesController } from "./controllers/courses-controller";
 import { logsController } from "./controllers/logs-controller";
 import { authController } from "./controllers/auth-controller";
+import { usersController } from "./controllers/users-controller";
 import { authMiddleware, requireRole } from "./middleware/auth-middleware";
 
 // Load environment variables
@@ -35,6 +36,13 @@ app.post("/api/auth/register", authController.register);
 app.post("/api/auth/logout", authController.logout);
 app.post("/api/auth/validate-token", authController.validateToken);
 
+// Auth Routes (require authentication)
+app.delete(
+    "/api/auth/users/:userId",
+    authMiddleware,
+    authController.deleteUser
+);
+
 // Protected Routes (require authentication)
 app.get("/api/courses", authMiddleware, coursesController.getCourses);
 app.post("/api/courses", authMiddleware, coursesController.addCourse);
@@ -56,6 +64,10 @@ app.patch(
 app.get("/api/logs/:courseId", authMiddleware, logsController.getLogs);
 app.post("/api/logs/:courseId", authMiddleware, logsController.addLog);
 app.delete("/api/logs/:logId", authMiddleware, logsController.deleteLog);
+
+// Users Routes (require authentication and role-based access)
+app.get("/api/users", authMiddleware, usersController.getUsers);
+app.get("/api/users/:userId", authMiddleware, usersController.getUserById);
 
 // Serve frontend
 app.get("/", (req: Request, res: Response) => {

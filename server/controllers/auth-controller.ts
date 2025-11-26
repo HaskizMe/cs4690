@@ -91,4 +91,59 @@ export const authController = {
             });
         }
     },
+
+    deleteUser: async (req: Request, res: Response) => {
+        try {
+            const userIdToDelete = parseInt(req.params.userId);
+            const requestingUserId = req.user?.userId
+                ? parseInt(req.user.userId)
+                : undefined;
+            const requestingUserRole = req.user?.role;
+            const requestingUserTenant = req.user?.tenant;
+
+            if (
+                !requestingUserId ||
+                !requestingUserRole ||
+                !requestingUserTenant
+            ) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Unauthorized: Missing authentication",
+                });
+            }
+
+            if (isNaN(userIdToDelete)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid user ID",
+                });
+            }
+
+            const result = await authService.deleteUser(
+                userIdToDelete,
+                requestingUserId,
+                requestingUserRole,
+                requestingUserTenant
+            );
+
+            if (result.success) {
+                res.status(200).json(result);
+            } else {
+                // Determine appropriate status code based on error
+                const statusCode = result.error?.includes("Unauthorized")
+                    ? 403
+                    : result.error?.includes("not found")
+                    ? 404
+                    : 400;
+                res.status(statusCode).json(result);
+            }
+        } catch (error) {
+            console.error("Delete user controller error:", error);
+            res.status(500).json({
+                success: false,
+                message: "Internal server error",
+                error: error instanceof Error ? error.message : "Unknown error",
+            });
+        }
+    },
 };

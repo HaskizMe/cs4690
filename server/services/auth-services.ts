@@ -26,14 +26,6 @@ export const authService = {
                 };
             }
 
-            if (password.length < 6) {
-                return {
-                    success: false,
-                    message: "Password too short",
-                    error: "Password must be at least 6 characters",
-                };
-            }
-
             // Check if user already exists
             const existingUser = await authRepo.findByUsername(username);
             if (existingUser) {
@@ -164,6 +156,78 @@ export const authService = {
         } catch (error) {
             console.error("User verification error:", error);
             return null;
+        }
+    },
+
+    // Delete user (admin can delete any user, users can only delete themselves)
+    deleteUser: async (
+        userIdToDelete: number,
+        requestingUserId: number,
+        requestingUserRole: string,
+        requestingUserTenant: string
+    ): Promise<AuthResponseWithToken> => {
+        try {
+            // Validate input
+            if (
+                !userIdToDelete ||
+                !requestingUserId ||
+                !requestingUserRole ||
+                !requestingUserTenant
+            ) {
+                return {
+                    success: false,
+                    message: "Missing required fields",
+                    error: "userIdToDelete, requestingUserId, requestingUserRole, and requestingUserTenant are required",
+                };
+            }
+
+            // Check authorization: only admin can delete others, users can only delete themselves
+            if (
+                requestingUserRole !== "admin" &&
+                userIdToDelete !== requestingUserId
+            ) {
+                return {
+                    success: false,
+                    message: "Unauthorized",
+                    error: "You can only delete your own account",
+                };
+            }
+
+            // Find the user to delete
+            const userToDelete = await authRepo.findById(
+                userIdToDelete.toString()
+            );
+            if (!userToDelete) {
+                return {
+                    success: false,
+                    message: "User not found",
+                    error: "The user you are trying to delete does not exist",
+                };
+            }
+
+            // Check tenant match (admin can only delete users from their own tenant)
+            if (userToDelete.tenant !== requestingUserTenant) {
+                return {
+                    success: false,
+                    message: "Unauthorized",
+                    error: "You cannot delete users from other tenants",
+                };
+            }
+
+            // Delete the user
+            await authRepo.delete(userIdToDelete.toString());
+
+            return {
+                success: true,
+                message: "User deleted successfully",
+            };
+        } catch (error) {
+            console.error("Delete user error:", error);
+            return {
+                success: false,
+                message: "Failed to delete user",
+                error: error instanceof Error ? error.message : "Unknown error",
+            };
         }
     },
 };

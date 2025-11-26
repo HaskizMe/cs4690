@@ -3,4 +3,5 @@ export type User = {
     username: string;
     role: string;
     tenant: string;
+    createdAt: string;
 };

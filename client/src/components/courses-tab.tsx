@@ -25,13 +25,34 @@ import {
     DialogTrigger,
     DialogFooter,
 } from "@/components/ui/dialog";
-import type { Course } from "../../../types/course";
+import type { Course } from "../types/course";
+import type { Log } from "../types/log";
+import { useState } from "react";
 
 interface CoursesTabProps {
     courses: Course[];
+    refetchLogs: (courseId: string) => void;
+    logs: Log[];
+    logsLoading?: boolean;
+    removeCourse: (courseId: string) => void;
 }
 
-export default function CoursesTab({ courses }: CoursesTabProps) {
+export default function CoursesTab({
+    courses,
+    refetchLogs,
+    logs,
+    logsLoading = false,
+    removeCourse,
+}: CoursesTabProps) {
+    const [selectedCourseId, setSelectedCourseId] = useState<string | null>(
+        null
+    );
+
+    const onViewLogs = (courseId: string) => {
+        setSelectedCourseId(courseId);
+        refetchLogs(courseId);
+    };
+
     return (
         <Card>
             <CardHeader>
@@ -66,12 +87,22 @@ export default function CoursesTab({ courses }: CoursesTabProps) {
                                     {course.enrolled_students.length}
                                 </TableCell>
                                 <TableCell className="text-right space-x-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => onViewLogs(course._id)}
+                                    >
+                                        View Logs
+                                    </Button>
                                     <Dialog>
                                         <DialogTrigger asChild>
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 className="text-destructive hover:text-destructive"
+                                                onClick={() =>
+                                                    removeCourse(course._id)
+                                                }
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
@@ -104,6 +135,55 @@ export default function CoursesTab({ courses }: CoursesTabProps) {
                     </TableBody>
                 </Table>
             </CardContent>
+
+            {/* Logs Modal Dialog */}
+            <Dialog
+                open={selectedCourseId !== null}
+                onOpenChange={(open) => {
+                    if (!open) setSelectedCourseId(null);
+                }}
+            >
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Course Logs</DialogTitle>
+                        <DialogDescription>
+                            View all activity logs for this course
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        {logsLoading ? (
+                            <div className="text-center py-8 text-muted-foreground">
+                                Loading logs...
+                            </div>
+                        ) : logs.length === 0 ? (
+                            <div className="text-center py-8 text-muted-foreground">
+                                No logs found for this course
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {logs.map((log, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="border rounded-lg p-3 space-y-1"
+                                    >
+                                        <div className="flex justify-between items-start">
+                                            <span className="font-medium text-sm">
+                                                Student ID: {log.uvu_id}
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                {log.date}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">
+                                            {log.text}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </Card>
     );
 }
