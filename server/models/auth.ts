@@ -2,7 +2,7 @@ export interface AuthResponse {
     success: boolean;
     message: string;
     user?: {
-        id: string;
+        id: number;
         username: string;
         role: string;
         tenant: string;

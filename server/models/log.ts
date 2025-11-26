@@ -1,5 +1,5 @@
 export interface ILog {
-    id: string;
+    // id: string;
     courseId: string;
     uvuId: string;
     date: string;

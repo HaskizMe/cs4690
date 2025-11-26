@@ -17,6 +17,7 @@ import {
 import { Plus, BookOpen, ChevronRight } from "lucide-react";
 import { getCourses } from "../../../api/courses/get-courses";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function StudentPage() {
     const [selectedCourseId, setSelectedCourseId] = useState<number | null>(
@@ -112,26 +113,38 @@ export default function StudentPage() {
                             <Label htmlFor="course-select">
                                 Available Courses
                             </Label>
-                            <Select
-                                value={selectedCourseId?.toString() || ""}
-                                onValueChange={(value) =>
-                                    setSelectedCourseId(parseInt(value))
-                                }
-                            >
-                                <SelectTrigger id="course-select">
-                                    <SelectValue placeholder="Select a course to join" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {myCourses.map((course) => (
-                                        <SelectItem
-                                            key={course.id}
-                                            value={course.id.toString()}
-                                        >
-                                            {course.code} - {course.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <div className="flex justify-between">
+                                <Select
+                                    value={selectedCourseId?.toString() || ""}
+                                    onValueChange={(value) =>
+                                        setSelectedCourseId(parseInt(value))
+                                    }
+                                >
+                                    <SelectTrigger id="course-select">
+                                        <SelectValue placeholder="Select a course to join" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {myCourses.map((course) => (
+                                            <SelectItem
+                                                key={course.id}
+                                                value={course.id.toString()}
+                                            >
+                                                {course.code} - {course.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Button
+                                    variant="default"
+                                    onClick={() => {
+                                        if (selectedCourseId) {
+                                            // TODO: Join course
+                                        }
+                                    }}
+                                >
+                                    Join Course
+                                </Button>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

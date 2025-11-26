@@ -96,7 +96,9 @@ export default function Login() {
                         </CardDescription>
                         <CardAction>
                             <Button variant="link">
-                                <Link to={`/${school}/signup`}>Sign Up</Link>
+                                <Link to={`/${school}/signup`}>
+                                    Register as Student
+                                </Link>
                             </Button>
                         </CardAction>
                     </CardHeader>

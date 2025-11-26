@@ -16,9 +16,10 @@ export const authRepo = {
         username: string,
         password: string,
         role: "admin" | "teacher" | "student",
-        tenant: "uvu" | "uofu"
+        tenant: "uvu" | "uofu",
+        id: number
     ): Promise<IUser> => {
-        const user = new User({ username, password, role, tenant });
+        const user = new User({ id, username, password, role, tenant });
         return user.save();
     },
 

@@ -1,4 +1,3 @@
 export interface ICourse {
-    id: string;
-    display: string;
+    course_name: string;
 }

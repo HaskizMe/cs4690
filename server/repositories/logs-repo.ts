@@ -6,7 +6,7 @@ const logSchema = new Schema<ILog>({
     uvuId: { type: String, required: true },
     date: { type: String, required: true },
     text: { type: String, required: true },
-    id: { type: String, required: true, unique: true },
+    // id: { type: String, required: true, unique: true },
 });
 
 export const Log = model<ILog>("logs", logSchema);

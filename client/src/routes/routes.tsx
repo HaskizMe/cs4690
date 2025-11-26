@@ -6,7 +6,7 @@ import AdminPage from "../pages/admin/admin-page";
 import TeacherPage from "../pages/teacher/teacher-page";
 import StudentPage from "../pages/student/student-page";
 import ProtectedRoute from "./protected-route";
-import AppLayout from "../layouts/app-layout";
+import AppLayout from "../components/layouts/app-layout";
 
 export const router = createBrowserRouter([
     {

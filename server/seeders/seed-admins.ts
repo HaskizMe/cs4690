@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { User } from "../models/user";
 import dotenv from "dotenv";
+import { generateUniqueId } from "../utils/generate-unique-id";
 
 dotenv.config();
 
@@ -20,12 +21,14 @@ async function seed() {
         // Seed admin users
         const users = [
             {
+                id: generateUniqueId(),
                 username: "root_uvu",
                 password: "willy",
                 role: "admin",
                 tenant: "uvu",
             },
             {
+                id: generateUniqueId(),
                 username: "root_uofu",
                 password: "swoopy",
                 role: "admin",

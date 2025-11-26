@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcrypt";
 
 export interface IUser extends Document {
+    id: number;
     username: string;
     password: string;
     role: "admin" | "teacher" | "student";
@@ -12,6 +13,13 @@ export interface IUser extends Document {
 
 const userSchema = new Schema<IUser>(
     {
+        id: {
+            type: Number,
+            required: true,
+            unique: true,
+            min: 10000000,
+            max: 99999999,
+        },
         username: {
             type: String,
             required: true,

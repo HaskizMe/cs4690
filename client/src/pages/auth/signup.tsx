@@ -7,19 +7,11 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
-    CardAction,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/use-auth";
 import { Link } from "react-router";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 
@@ -30,7 +22,6 @@ export default function Signup() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [role, setRole] = useState("student");
 
     useEffect(() => {
         document.documentElement.className = `tenant-${school}`;
@@ -43,7 +34,7 @@ export default function Signup() {
                 username,
                 password,
                 school as "uvu" | "uofu",
-                role as "student" | "teacher"
+                "student"
             );
             navigate(`/${school}/${authData.user.role}`);
         } catch {
@@ -72,24 +63,6 @@ export default function Signup() {
                             <CardDescription>
                                 Sign up for an account
                             </CardDescription>
-                            <CardAction>
-                                <Select
-                                    defaultValue={role}
-                                    onValueChange={setRole}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="student">
-                                            Student
-                                        </SelectItem>
-                                        <SelectItem value="teacher">
-                                            Teacher
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </CardAction>
                         </CardHeader>
                         <CardContent className="space-y-2">
                             <form onSubmit={handleSubmit} className="space-y-4">

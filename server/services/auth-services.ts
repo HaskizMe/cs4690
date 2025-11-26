@@ -2,6 +2,7 @@ import { authRepo } from "../repositories/auth-repo";
 import { IUser } from "../models/user";
 import { AuthResponse } from "../models/auth";
 import { jwtUtils } from "../utils/jwt";
+import { generateUniqueId } from "../utils/generate-unique-id";
 
 export interface AuthResponseWithToken extends AuthResponse {
     token?: string;
@@ -43,19 +44,19 @@ export const authService = {
                 };
             }
 
-            // Create new user
+            // Create new user with generated ID
+            const studentId = generateUniqueId();
             const user = await authRepo.create(
                 username,
                 password,
                 role,
-                tenant
+                tenant,
+                studentId
             );
-
-            const userId = (user._id as any).toString();
 
             // Generate JWT token
             const token = jwtUtils.generateToken({
-                userId,
+                userId: user.id.toString(),
                 username: user.username,
                 role: user.role,
                 tenant: user.tenant,
@@ -65,7 +66,7 @@ export const authService = {
                 success: true,
                 message: "User registered successfully",
                 user: {
-                    id: userId,
+                    id: user.id,
                     username: user.username,
                     role: user.role,
                     tenant: user.tenant,
@@ -127,11 +128,9 @@ export const authService = {
                 };
             }
 
-            const userId = (user._id as any).toString();
-
             // Generate JWT token
             const token = jwtUtils.generateToken({
-                userId,
+                userId: user.id.toString(),
                 username: user.username,
                 role: user.role,
                 tenant: user.tenant,
@@ -141,7 +140,7 @@ export const authService = {
                 success: true,
                 message: "Login successful",
                 user: {
-                    id: userId,
+                    id: user.id,
                     username: user.username,
                     role: user.role,
                     tenant: user.tenant,
