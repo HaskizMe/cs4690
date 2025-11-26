@@ -43,6 +43,16 @@ app.delete(
     authMiddleware,
     coursesController.deleteCourse
 );
+app.patch(
+    "/api/courses/:courseId/enroll",
+    authMiddleware,
+    coursesController.enrollStudent
+);
+app.patch(
+    "/api/courses/:courseId/unenroll",
+    authMiddleware,
+    coursesController.unenrollStudent
+);
 app.get("/api/logs", authMiddleware, logsController.getLogs);
 app.post("/api/logs", authMiddleware, logsController.addLog);
 app.delete("/api/logs/:logId", authMiddleware, logsController.deleteLog);

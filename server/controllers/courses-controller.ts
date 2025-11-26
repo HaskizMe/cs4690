@@ -4,7 +4,19 @@ import { coursesService } from "../services/courses-service";
 export const coursesController = {
     getCourses: async (req: Request, res: Response) => {
         try {
-            const courses = await coursesService.getAllCourses();
+            const role = req.user?.role;
+            const tenant = req.user?.tenant;
+            const studentId = req.user?.userId
+                ? parseInt(req.user.userId)
+                : undefined;
+            if (!role || !tenant || !studentId) {
+                return res.status(401).json({ error: "Unauthorized" });
+            }
+            const courses = await coursesService.getAllCourses(
+                role,
+                tenant,
+                studentId
+            );
             res.json(courses);
         } catch (error) {
             console.error("Error in getCourses:", error);
@@ -13,7 +25,13 @@ export const coursesController = {
     },
     addCourse: async (req: Request, res: Response) => {
         try {
-            const course = await coursesService.createCourse(req.body);
+            const role = req.user?.role;
+            const tenant = req.user?.tenant;
+            const course = await coursesService.createCourse(
+                req.body,
+                role,
+                tenant
+            );
             res.json(course);
         } catch (error: any) {
             console.error("Error in addCourse:", error);
@@ -24,12 +42,66 @@ export const coursesController = {
     },
     deleteCourse: async (req: Request, res: Response) => {
         try {
+            const role = req.user?.role;
+            const tenant = req.user?.tenant;
             const courseId = req.params.courseId;
-            const course = await coursesService.deleteCourse(courseId);
+            const course = await coursesService.deleteCourse(
+                courseId,
+                role,
+                tenant
+            );
             res.json(course);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error in deleteCourse:", error);
-            res.status(500).json({ error: "Failed to delete course" });
+            const statusCode = error.statusCode || 500;
+            const message = error.message || "Failed to delete course";
+            res.status(statusCode).json({ error: message });
+        }
+    },
+
+    enrollStudent: async (req: Request, res: Response) => {
+        try {
+            const role = req.user?.role;
+            const tenant = req.user?.tenant;
+            const courseId = req.params.courseId;
+            const studentId = req.user?.userId
+                ? parseInt(req.user.userId)
+                : undefined;
+            const course = await coursesService.enrollStudent(
+                courseId,
+                role,
+                tenant,
+                studentId
+            );
+            res.json(course);
+        } catch (error: any) {
+            console.error("Error in enrollStudent:", error);
+            const statusCode = error.statusCode || 500;
+            const message = error.message || "Failed to enroll student";
+            res.status(statusCode).json({ error: message });
+        }
+    },
+
+    unenrollStudent: async (req: Request, res: Response) => {
+        try {
+            const role = req.user?.role;
+            const tenant = req.user?.tenant;
+            const courseId = req.params.courseId;
+            const studentId = req.user?.userId
+                ? parseInt(req.user.userId)
+                : undefined;
+            const course = await coursesService.unenrollStudent(
+                courseId,
+                role,
+                tenant,
+                studentId
+            );
+            res.json(course);
+        } catch (error: any) {
+            console.error("Error in unenrollStudent:", error);
+            const statusCode = error.statusCode || 500;
+            const message = error.message || "Failed to unenroll student";
+            res.status(statusCode).json({ error: message });
         }
     },
 };

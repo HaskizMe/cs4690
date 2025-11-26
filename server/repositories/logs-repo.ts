@@ -1,15 +1,4 @@
-import { Schema, model } from "mongoose";
-import { ILog } from "../models/log";
-
-const logSchema = new Schema<ILog>({
-    courseId: { type: String, required: true },
-    uvuId: { type: String, required: true },
-    date: { type: String, required: true },
-    text: { type: String, required: true },
-    // id: { type: String, required: true, unique: true },
-});
-
-export const Log = model<ILog>("logs", logSchema);
+import { ILog, Log } from "../models/log";
 
 export const logsRepository = {
     getLogs: async (courseId?: string, uvuId?: string) => {

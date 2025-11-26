@@ -8,7 +8,7 @@
         "client": "npm run dev --prefix client",
         "start": "node dist/server.js",
         "dev": "concurrently \"npm run server\" \"npm run client\"",
-        "seed": "ts-node server/seeders/seed-admins.ts"
+        "seed": "ts-node server/seeders/seeder.ts"
     },
     "dependencies": {
         "bcrypt": "^6.0.0",
