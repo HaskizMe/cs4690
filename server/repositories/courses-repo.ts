@@ -43,7 +43,7 @@ export const coursesRepository = {
     },
     deleteCourse: async (courseId: string) => {
         try {
-            return await Course.deleteOne({ id: courseId });
+            return await Course.deleteOne({ _id: courseId });
         } catch (error) {
             console.error("Error deleting course:", error);
             throw error;

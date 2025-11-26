@@ -25,9 +25,10 @@ import {
     DialogTrigger,
     DialogFooter,
 } from "@/components/ui/dialog";
+import type { Course } from "../../../types/course";
 
 interface CoursesTabProps {
-    courses: any[];
+    courses: Course[];
 }
 
 export default function CoursesTab({ courses }: CoursesTabProps) {
@@ -46,11 +47,9 @@ export default function CoursesTab({ courses }: CoursesTabProps) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Code</TableHead>
                             <TableHead>Course Name</TableHead>
-                            <TableHead>Instructor</TableHead>
-                            <TableHead>Students</TableHead>
-                            <TableHead>Created</TableHead>
+                            <TableHead>Professor ID</TableHead>
+                            <TableHead>Students Enrolled</TableHead>
                             <TableHead className="text-right">
                                 Actions
                             </TableHead>
@@ -58,14 +57,14 @@ export default function CoursesTab({ courses }: CoursesTabProps) {
                     </TableHeader>
                     <TableBody>
                         {courses.map((course) => (
-                            <TableRow key={course.id}>
+                            <TableRow key={course._id}>
                                 <TableCell className="font-medium">
-                                    {course.code}
+                                    {course.course_name}
                                 </TableCell>
-                                <TableCell>{course.name}</TableCell>
-                                <TableCell>{course.instructor}</TableCell>
-                                <TableCell>{course.students}</TableCell>
-                                <TableCell>{course.createdAt}</TableCell>
+                                <TableCell>{course.professor_id}</TableCell>
+                                <TableCell>
+                                    {course.enrolled_students.length}
+                                </TableCell>
                                 <TableCell className="text-right space-x-2">
                                     <Dialog>
                                         <DialogTrigger asChild>

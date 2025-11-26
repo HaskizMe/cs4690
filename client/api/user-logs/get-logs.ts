@@ -1,6 +1,6 @@
 import { api } from "../api";
 
-export const getLogs = async () => {
-    const response = await api.get("/logs");
+export const getLogs = async (courseId: string) => {
+    const response = await api.get(`/logs/${courseId}`);
     return response.data;
 };
