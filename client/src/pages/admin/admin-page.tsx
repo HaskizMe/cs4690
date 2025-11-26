@@ -8,25 +8,28 @@ import { getCourses } from "../../../api/courses/get-courses";
 
 export default function AdminPage() {
     const [activeTab, setActiveTab] = useState("users");
+    // const [logs, setLogs] = useState([]);
+    // const [courses, setCourses] = useState([]);
+    // // const [users, setUsers] = useState([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [logs, courses] = await Promise.all([
-                    getLogs(),
-                    getCourses(),
-                    // getUsers(),
-                ]);
-                console.log(logs);
-                console.log(courses);
-                // console.log(users);
-            } catch (error) {
-                console.error("Failed to fetch admin data:", error);
-                // TODO: Show error toast/notification to user
-            }
-        };
-        fetchData();
-    }, []);
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             const [logs, courses] = await Promise.all([
+    //                 getLogs(),
+    //                 getCourses(),
+    //                 // getUsers(),
+    //             ]);
+    //             setLogs(logs);
+    //             setCourses(courses);
+    //             // console.log(users);
+    //         } catch (error) {
+    //             console.error("Failed to fetch admin data:", error);
+    //             // TODO: Show error toast/notification to user
+    //         }
+    //     };
+    //     fetchData();
+    // }, []);
 
     const users = [
         {

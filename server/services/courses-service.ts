@@ -39,8 +39,8 @@ export const coursesService = {
         if (!role || !tenant || !studentId) {
             throw new Error("Unauthorized");
         }
-        if (role !== "student") {
-            throw new Error("Unauthorized: Role must be student");
+        if (role !== "student" && role !== "teacher") {
+            throw new Error("Unauthorized: Role must be student or teacher");
         }
 
         const course = await coursesRepository.getCourseById(courseId);
@@ -66,8 +66,8 @@ export const coursesService = {
         if (!role || !tenant || !studentId) {
             throw new Error("Unauthorized");
         }
-        if (role !== "student") {
-            throw new Error("Unauthorized: Role must be student");
+        if (role !== "student" && role !== "teacher") {
+            throw new Error("Unauthorized: Role must be student or teacher");
         }
 
         const course = await coursesRepository.getCourseById(courseId);

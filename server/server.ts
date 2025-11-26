@@ -53,8 +53,8 @@ app.patch(
     authMiddleware,
     coursesController.unenrollStudent
 );
-app.get("/api/logs", authMiddleware, logsController.getLogs);
-app.post("/api/logs", authMiddleware, logsController.addLog);
+app.get("/api/logs/:courseId", authMiddleware, logsController.getLogs);
+app.post("/api/logs/:courseId", authMiddleware, logsController.addLog);
 app.delete("/api/logs/:logId", authMiddleware, logsController.deleteLog);
 
 // Serve frontend

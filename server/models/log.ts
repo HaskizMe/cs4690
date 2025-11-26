@@ -5,6 +5,7 @@ export interface ILog {
     uvu_id: string;
     date: string;
     text: string;
+    tenant: string;
 }
 
 const logSchema = new Schema<ILog>({
@@ -12,6 +13,7 @@ const logSchema = new Schema<ILog>({
     uvu_id: { type: String, required: true },
     date: { type: String, required: true },
     text: { type: String, required: true },
+    tenant: { type: String, required: true },
 });
 
 export const Log = mongoose.model<ILog>("logs", logSchema);

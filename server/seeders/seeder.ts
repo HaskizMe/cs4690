@@ -17,8 +17,8 @@ async function seed() {
         console.log("Connected to MongoDB for seeding");
 
         await seedUsers();
-        await seedCourses();
-        await seedLogs();
+        const courses = await seedCourses();
+        await seedLogs(courses);
     } catch (err) {
         console.error("Seeding error:", err);
     } finally {
@@ -101,38 +101,51 @@ async function seedCourses() {
     console.log("Cleared courses collection");
     const courses = [
         {
-            id: 1,
             course_name: "CS 101",
             enrolled_students: [33333333, 66666666],
             professor_id: 11111111,
             tenant: "uvu",
         },
         {
-            id: 2,
-            course_name: "CS 102",
+            course_name: "CS 103",
+            enrolled_students: [33333333],
+            professor_id: 11111111,
+            tenant: "uvu",
+        },
+        {
+            course_name: "CS 104",
+            enrolled_students: [44444444, 55555555],
+            professor_id: 22222222,
+            tenant: "uofu",
+        },
+        {
+            course_name: "CS 105",
             enrolled_students: [44444444, 55555555],
             professor_id: 22222222,
             tenant: "uofu",
         },
     ];
-    await Course.create(courses);
+    const createdCourses = await Course.create(courses);
     console.log("✓ Seeded courses");
+    return createdCourses;
 }
 
-async function seedLogs() {
+async function seedLogs(courses: any[]) {
     await Log.deleteMany({});
     console.log("Cleared logs collection");
     const logs = [
         {
-            course_id: 1,
-            uvu_id: 33333333,
+            course_id: courses[0]._id.toString(),
+            uvu_id: "33333333",
             date: "2025-11-26",
+            tenant: "uvu",
             text: "Hello World from student_uvu",
         },
         {
-            course_id: 2,
-            uvu_id: 44444444,
+            course_id: courses[1]._id.toString(),
+            uvu_id: "44444444",
             date: "2025-11-26",
+            tenant: "uofu",
             text: "Hello World from student_uofu",
         },
     ];
