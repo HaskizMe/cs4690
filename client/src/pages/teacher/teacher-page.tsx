@@ -15,6 +15,7 @@ export default function TeacherPage() {
         createUser,
         removeUser,
         removeCourse,
+        createCourse,
     } = useData(activeTab);
 
     return (
@@ -65,6 +66,8 @@ export default function TeacherPage() {
                     logs={logs}
                     logsLoading={loading}
                     removeCourse={removeCourse}
+                    students={users}
+                    createCourse={createCourse}
                 />
             )}
         </div>

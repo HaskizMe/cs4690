@@ -17,7 +17,6 @@ import {
 import { BookOpen, Trash2 } from "lucide-react";
 import {
     Dialog,
-    DialogClose,
     DialogContent,
     DialogDescription,
     DialogHeader,
@@ -27,7 +26,13 @@ import {
 } from "@/components/ui/dialog";
 import type { Course } from "../types/course";
 import type { Log } from "../types/log";
+import type { User } from "../types/user";
 import { useState } from "react";
+import { useAuth } from "../contexts/use-auth";
+import { Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useParams } from "react-router";
 
 interface CoursesTabProps {
     courses: Course[];
@@ -35,6 +40,13 @@ interface CoursesTabProps {
     logs: Log[];
     logsLoading?: boolean;
     removeCourse: (courseId: string) => void;
+    students: User[];
+    createCourse?: (
+        professorId: string,
+        courseName: string,
+        tenant: string,
+        enrolledStudents: number[]
+    ) => Promise<void>;
 }
 
 export default function CoursesTab({
@@ -43,26 +55,168 @@ export default function CoursesTab({
     logs,
     logsLoading = false,
     removeCourse,
+    students,
+    createCourse,
 }: CoursesTabProps) {
+    const { school } = useParams();
+    const { user } = useAuth();
     const [selectedCourseId, setSelectedCourseId] = useState<string | null>(
         null
     );
+    const [createCourseDialogOpen, setCreateCourseDialogOpen] = useState(false);
+    const [courseName, setCourseName] = useState("");
+    const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
 
     const onViewLogs = (courseId: string) => {
         setSelectedCourseId(courseId);
         refetchLogs(courseId);
     };
 
+    const handleCreateCourse = async () => {
+        if (!createCourse || !user?.id || !school) {
+            console.error("Missing required data:", {
+                hasCreateCourse: !!createCourse,
+                userId: user?.id,
+                school,
+            });
+            return;
+        }
+        try {
+            await createCourse(
+                user.id.toString(),
+                courseName,
+                school,
+                selectedStudents
+            );
+            setCourseName("");
+            setSelectedStudents([]);
+            setCreateCourseDialogOpen(false);
+        } catch (error) {
+            console.error("Failed to create course:", error);
+        }
+    };
+
+    const toggleStudent = (studentId: number) => {
+        setSelectedStudents((prev) =>
+            prev.includes(studentId)
+                ? prev.filter((id) => id !== studentId)
+                : [...prev, studentId]
+        );
+    };
+
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5" />
-                    All Courses
-                </CardTitle>
-                <CardDescription>
-                    View and manage all courses in the system
-                </CardDescription>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardTitle className="flex items-center gap-2">
+                            <BookOpen className="h-5 w-5" />
+                            All Courses
+                        </CardTitle>
+                        <CardDescription>
+                            View and manage all courses in the system
+                        </CardDescription>
+                    </div>
+                    {user && user.role === "teacher" && (
+                        <Dialog
+                            open={createCourseDialogOpen}
+                            onOpenChange={setCreateCourseDialogOpen}
+                        >
+                            <DialogTrigger asChild>
+                                <Button className="gap-2">
+                                    <Plus className="h-4 w-4" />
+                                    Create Course
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>Create New Course</DialogTitle>
+                                    <DialogDescription>
+                                        Add a new course and select students to
+                                        enroll
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="course-name">
+                                            Course Name
+                                        </Label>
+                                        <Input
+                                            id="course-name"
+                                            placeholder="e.g., Introduction to CS"
+                                            value={courseName}
+                                            onChange={(e) =>
+                                                setCourseName(e.target.value)
+                                            }
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Select Students</Label>
+                                        <div className="border rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                                            {students.length === 0 ? (
+                                                <p className="text-sm text-muted-foreground">
+                                                    No students available
+                                                </p>
+                                            ) : (
+                                                students.map((student) => (
+                                                    <div
+                                                        key={student.id}
+                                                        className="flex items-center space-x-2"
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            id={`student-${student.id}`}
+                                                            checked={selectedStudents.includes(
+                                                                Number(
+                                                                    student.id
+                                                                )
+                                                            )}
+                                                            onChange={() =>
+                                                                toggleStudent(
+                                                                    Number(
+                                                                        student.id
+                                                                    )
+                                                                )
+                                                            }
+                                                            className="w-4 h-4"
+                                                        />
+                                                        <Label
+                                                            htmlFor={`student-${student.id}`}
+                                                            className="cursor-pointer text-sm font-normal"
+                                                        >
+                                                            {student.username}
+                                                        </Label>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                    <DialogFooter>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() =>
+                                                setCreateCourseDialogOpen(false)
+                                            }
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            onClick={handleCreateCourse}
+                                            disabled={
+                                                !courseName.trim() ||
+                                                selectedStudents.length === 0
+                                            }
+                                        >
+                                            Create Course
+                                        </Button>
+                                    </DialogFooter>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    )}
+                </div>
             </CardHeader>
             <CardContent>
                 <Table>
@@ -94,15 +248,29 @@ export default function CoursesTab({
                                     >
                                         View Logs
                                     </Button>
-                                    <Dialog>
+                                    <Dialog
+                                        open={
+                                            deleteDialogOpen &&
+                                            courseToDelete === course._id
+                                        }
+                                        onOpenChange={(open) => {
+                                            if (!open) {
+                                                setDeleteDialogOpen(false);
+                                                setCourseToDelete(null);
+                                            }
+                                        }}
+                                    >
                                         <DialogTrigger asChild>
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 className="text-destructive hover:text-destructive"
-                                                onClick={() =>
-                                                    removeCourse(course._id)
-                                                }
+                                                onClick={() => {
+                                                    setCourseToDelete(
+                                                        course._id
+                                                    );
+                                                    setDeleteDialogOpen(true);
+                                                }}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
@@ -118,14 +286,35 @@ export default function CoursesTab({
                                                 </DialogDescription>
                                             </DialogHeader>
                                             <DialogFooter>
-                                                <DialogClose asChild>
-                                                    <Button variant="outline">
-                                                        Cancel
-                                                    </Button>
-                                                </DialogClose>
-                                                <DialogClose asChild>
-                                                    <Button>Delete</Button>
-                                                </DialogClose>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        setDeleteDialogOpen(
+                                                            false
+                                                        );
+                                                        setCourseToDelete(null);
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    variant="destructive"
+                                                    onClick={async () => {
+                                                        if (courseToDelete) {
+                                                            await removeCourse(
+                                                                courseToDelete
+                                                            );
+                                                            setDeleteDialogOpen(
+                                                                false
+                                                            );
+                                                            setCourseToDelete(
+                                                                null
+                                                            );
+                                                        }
+                                                    }}
+                                                >
+                                                    Delete
+                                                </Button>
                                             </DialogFooter>
                                         </DialogContent>
                                     </Dialog>

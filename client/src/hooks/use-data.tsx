@@ -8,6 +8,7 @@ import type { Course } from "../types/course";
 import type { User } from "../types/user";
 import { postRegister } from "../../api/auth/post-register";
 import { deleteUser } from "../../api/auth/delete-user";
+import { postCourse } from "../../api/courses/post-course";
 
 export default function useData(
     initTab: string | "users" | "courses" = "users"
@@ -144,6 +145,27 @@ export default function useData(
         }
     };
 
+    const createCourse = async (
+        professorId: string,
+        courseName: string,
+        tenant: string,
+        enrolledStudents: number[]
+    ) => {
+        try {
+            setLoading(true);
+            setError(null);
+            await postCourse(professorId, courseName, tenant, enrolledStudents);
+            await fetchCourses();
+        } catch (err) {
+            console.error("Failed to create course:", err);
+            setError(
+                err instanceof Error ? err.message : "Failed to create data"
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return {
         logs,
         courses,
@@ -156,5 +178,6 @@ export default function useData(
         fetchUsers,
         createUser,
         removeUser,
+        createCourse,
     };
 }

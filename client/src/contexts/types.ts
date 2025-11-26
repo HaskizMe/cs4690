@@ -1,5 +1,5 @@
 export interface AuthUser {
-    userId: string;
+    id: number;
     username: string;
     role: string;
     tenant: string;

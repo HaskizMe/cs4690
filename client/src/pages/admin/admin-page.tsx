@@ -65,6 +65,7 @@ export default function AdminPage() {
                     logs={logs}
                     logsLoading={loading}
                     removeCourse={removeCourse}
+                    students={users}
                 />
             )}
         </div>
