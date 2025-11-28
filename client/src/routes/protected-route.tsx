@@ -12,12 +12,14 @@ export default function ProtectedRoute({ requiredRoles }: ProtectedRouteProps) {
     const { school } = useParams();
 
     useEffect(() => {
+        document.documentElement.className = `tenant-${school}`;
         if (isLoading) {
             return;
         }
 
         // Not logged in - redirect to login
         if (!user) {
+            console.log("User not logged in");
             navigate(`/${school}/login`);
             return;
         }

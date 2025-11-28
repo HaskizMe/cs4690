@@ -52,12 +52,12 @@ app.delete(
     coursesController.deleteCourse
 );
 app.patch(
-    "/api/courses/:courseId/enroll",
+    "/api/courses/:courseId/enroll/:userId",
     authMiddleware,
     coursesController.enrollStudent
 );
 app.patch(
-    "/api/courses/:courseId/unenroll",
+    "/api/courses/:courseId/unenroll/:userId",
     authMiddleware,
     coursesController.unenrollStudent
 );

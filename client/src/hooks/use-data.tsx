@@ -28,7 +28,7 @@ export default function useData(
                     const users = await getUsers();
                     setUsers(users);
                 } else if (initTab === "courses") {
-                    const courses = await getCourses();
+                    const courses = await getCourses({});
                     setCourses(courses);
                 }
             } catch (err) {
@@ -63,7 +63,7 @@ export default function useData(
         try {
             setLoading(true);
             setError(null);
-            const data = await getCourses();
+            const data = await getCourses({});
             setCourses(data);
         } catch (err) {
             console.error("Failed to fetch courses:", err);

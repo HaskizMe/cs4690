@@ -2,8 +2,18 @@ import { coursesRepository } from "../repositories/courses-repo";
 import { ICourse } from "../models/course";
 
 export const coursesService = {
-    getAllCourses: async (role: string, tenant: string, studentId: number) => {
-        return await coursesRepository.getAllCourses(role, tenant, studentId);
+    getAllCourses: async (
+        role: string,
+        tenant: string,
+        studentId: number,
+        all?: boolean
+    ) => {
+        return await coursesRepository.getAllCourses(
+            role,
+            tenant,
+            studentId,
+            all
+        );
     },
     createCourse: async (course: ICourse, role?: string, tenant?: string) => {
         if (role !== "admin" && role !== "teacher") {
@@ -39,9 +49,9 @@ export const coursesService = {
         if (!role || !tenant || !studentId) {
             throw new Error("Unauthorized");
         }
-        if (role !== "student" && role !== "teacher") {
-            throw new Error("Unauthorized: Role must be student or teacher");
-        }
+        // if (role !== "student" && role !== "teacher") {
+        //     throw new Error("Unauthorized: Role must be student or teacher");
+        // }
 
         const course = await coursesRepository.getCourseById(courseId);
         if (!course) {
@@ -66,9 +76,9 @@ export const coursesService = {
         if (!role || !tenant || !studentId) {
             throw new Error("Unauthorized");
         }
-        if (role !== "student" && role !== "teacher") {
-            throw new Error("Unauthorized: Role must be student or teacher");
-        }
+        // if (role !== "student" && role !== "teacher") {
+        //     throw new Error("Unauthorized: Role must be student or teacher");
+        // }
 
         const course = await coursesRepository.getCourseById(courseId);
         if (!course) {

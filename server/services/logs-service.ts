@@ -24,13 +24,6 @@ export const logsService = {
             throw new Error("Unauthorized");
         }
 
-        // Only students and teachers can create logs
-        if (role !== "student" && role !== "teacher") {
-            throw new Error(
-                "Unauthorized: Only students and teachers can create logs"
-            );
-        }
-
         return await logsRepository.createLog(log, role, userId, courseId);
     },
     deleteLog: async (

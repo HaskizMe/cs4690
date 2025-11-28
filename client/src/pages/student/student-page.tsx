@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Card,
     CardContent,
@@ -6,87 +6,59 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { Plus, BookOpen, ChevronRight } from "lucide-react";
+import { BookOpen, ChevronRight } from "lucide-react";
 import { getCourses } from "../../../api/courses/get-courses";
-import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import type { Course } from "@/types/course";
+import type { Log } from "@/types/log";
+import { getLogs } from "../../../api/user-logs/get-logs";
+import { MessageCard } from "@/components/message-card";
+import { EnrollStudentCard } from "@/components/enroll-student-card";
+import { patchEnrollment } from "../../../api/enrollment/patch-enrollment";
+import { patchUnenrollment } from "../../../api/enrollment/patch-unenrollment";
 
 export default function StudentPage() {
-    const [selectedCourseId, setSelectedCourseId] = useState<number | null>(
+    const [selectedCourseId, setSelectedCourseId] = useState<string | null>(
         null
     );
 
+    const [myCourses, setMyCourses] = useState<Course[]>([]);
+    const [allCourses, setAllCourses] = useState<Course[]>([]);
+    const [logs, setLogs] = useState<Log[]>([]);
+
     useEffect(() => {
         const fetchData = async () => {
-            const courses = await getCourses();
-            console.log(courses);
+            const courses = await getCourses({});
+            setMyCourses(courses);
+            const allCourses = await getCourses({ all: true });
+            setAllCourses(allCourses);
         };
         fetchData();
     }, []);
 
-    // Mock data - will be replaced with actual API calls
-    const myCourses = [
-        {
-            id: 1,
-            name: "Introduction to Computer Science",
-            code: "CS101",
-            instructor: "Dr. Smith",
-            status: "Active",
-            logs: [
-                {
-                    id: 1,
-                    timestamp: "2025-11-25 10:30 AM",
-                    action: "Joined course",
-                    details: "Successfully enrolled in CS101",
-                },
-                {
-                    id: 2,
-                    timestamp: "2025-11-24 3:00 PM",
-                    action: "Submitted assignment",
-                    details: "Assignment 1 submitted",
-                },
-                {
-                    id: 3,
-                    timestamp: "2025-11-23 11:15 AM",
-                    action: "Viewed course materials",
-                    details: "Accessed lecture notes",
-                },
-            ],
-        },
-        {
-            id: 2,
-            name: "Data Structures",
-            code: "CS201",
-            instructor: "Dr. Johnson",
-            status: "Active",
-            logs: [
-                {
-                    id: 4,
-                    timestamp: "2025-11-25 2:15 PM",
-                    action: "Submitted assignment",
-                    details: "Assignment 3 submitted",
-                },
-                {
-                    id: 5,
-                    timestamp: "2025-11-23 9:45 AM",
-                    action: "Viewed course materials",
-                    details: "Accessed lecture notes",
-                },
-            ],
-        },
-    ];
+    const refetchCourses = async () => {
+        const courses = await getCourses({});
+        setMyCourses(courses);
+        const allCourses = await getCourses({ all: true });
+        setAllCourses(allCourses);
+    };
 
-    const selectedCourse = myCourses.find((c) => c.id === selectedCourseId);
-    const courseLogs = selectedCourse?.logs || [];
+    const handleCourseClick = async (courseId: string) => {
+        const logs = await getLogs(courseId);
+        setLogs(logs);
+        setSelectedCourseId(courseId);
+    };
 
+    const handleMessageSent = async () => {
+        if (!selectedCourseId) {
+            return;
+        }
+        const logs = await getLogs(selectedCourseId);
+        setLogs(logs);
+        // Refresh courses or logs if needed
+        console.log("Message sent successfully");
+    };
+
+    const selectedCourse = myCourses.find((c) => c._id === selectedCourseId);
     return (
         <div className="w-3xl mx-auto p-8 space-y-8">
             <div>
@@ -97,57 +69,34 @@ export default function StudentPage() {
             </div>
 
             <div className="space-y-6">
-                {/* Join Course Card */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Plus className="h-5 w-5" />
-                            Join a Course
-                        </CardTitle>
-                        <CardDescription>
-                            Select a course to join
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-2">
-                            <Label htmlFor="course-select">
-                                Available Courses
-                            </Label>
-                            <div className="flex justify-between">
-                                <Select
-                                    value={selectedCourseId?.toString() || ""}
-                                    onValueChange={(value) =>
-                                        setSelectedCourseId(parseInt(value))
-                                    }
-                                >
-                                    <SelectTrigger id="course-select">
-                                        <SelectValue placeholder="Select a course to join" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {myCourses.map((course) => (
-                                            <SelectItem
-                                                key={course.id}
-                                                value={course.id.toString()}
-                                            >
-                                                {course.code} - {course.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <Button
-                                    variant="default"
-                                    onClick={() => {
-                                        if (selectedCourseId) {
-                                            // TODO: Join course
-                                        }
-                                    }}
-                                >
-                                    Join Course
-                                </Button>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                {/* Message Card */}
+                <MessageCard
+                    courses={myCourses}
+                    onMessageSent={handleMessageSent}
+                />
+
+                <EnrollStudentCard
+                    courses={allCourses}
+                    students={undefined}
+                    onEnrollStudent={async (studentId, courseId) => {
+                        await patchEnrollment(courseId, studentId);
+                        await refetchCourses();
+                        // Handle student enrollment
+                        console.log(
+                            `Enrolling student ${studentId} in course ${courseId}`
+                        );
+                        // TODO: Implement actual enrollment API call
+                    }}
+                    onUnenrollStudent={async (studentId, courseId) => {
+                        await patchUnenrollment(courseId, studentId);
+                        await refetchCourses();
+                        // Handle student unenrollment
+                        console.log(
+                            `Unenrolling student ${studentId} from course ${courseId}`
+                        );
+                        // TODO: Implement actual unenrollment API call
+                    }}
+                />
 
                 {/* Courses List */}
                 <Card>
@@ -172,12 +121,12 @@ export default function StudentPage() {
                             <div className="space-y-3">
                                 {myCourses.map((course) => (
                                     <div
-                                        key={course.id}
-                                        onClick={() =>
-                                            setSelectedCourseId(course.id)
-                                        }
+                                        key={course._id}
+                                        onClick={() => {
+                                            handleCourseClick(course._id);
+                                        }}
                                         className={`border rounded-lg p-4 transition-colors cursor-pointer group ${
-                                            selectedCourseId === course.id
+                                            selectedCourseId === course._id
                                                 ? "bg-primary/10 border-primary"
                                                 : "hover:bg-muted/50"
                                         }`}
@@ -185,17 +134,10 @@ export default function StudentPage() {
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
                                                 <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                                                    {course.name}
+                                                    {course.course_name}
                                                 </h3>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {course.code} •{" "}
-                                                    {course.instructor}
-                                                </p>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
-                                                    {course.status}
-                                                </span>
                                                 <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                                             </div>
                                         </div>
@@ -211,14 +153,11 @@ export default function StudentPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle>
-                                Activity for {selectedCourse.code}
+                                Activity for {selectedCourse.course_name}
                             </CardTitle>
-                            <CardDescription>
-                                {selectedCourse.name}
-                            </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            {courseLogs.length === 0 ? (
+                            {logs.length === 0 ? (
                                 <div className="text-center py-8">
                                     <p className="text-sm text-muted-foreground">
                                         No activity yet
@@ -226,19 +165,16 @@ export default function StudentPage() {
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    {courseLogs.map((log) => (
+                                    {logs.map((log) => (
                                         <div
-                                            key={log.id}
+                                            key={log._id}
                                             className="border-l-2 border-primary pl-4 pb-4 last:pb-0"
                                         >
                                             <p className="text-xs text-muted-foreground">
-                                                {log.timestamp}
+                                                {log.date}
                                             </p>
                                             <p className="text-sm font-medium mt-1">
-                                                {log.action}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground mt-1">
-                                                {log.details}
+                                                {log.text}
                                             </p>
                                         </div>
                                     ))}

@@ -2,6 +2,10 @@ import { useState } from "react";
 import useData from "../../hooks/use-data";
 import UserTab from "../../components/users-tab";
 import CoursesTab from "../../components/courses-tab";
+import { MessageCard } from "../../components/message-card";
+import { EnrollStudentCard } from "../../components/enroll-student-card";
+import { patchUnenrollment } from "../../../api/enrollment/patch-unenrollment";
+import { patchEnrollment } from "../../../api/enrollment/patch-enrollment";
 
 export default function TeacherPage() {
     const [activeTab, setActiveTab] = useState("users");
@@ -12,6 +16,7 @@ export default function TeacherPage() {
         users,
         loading,
         fetchLogs,
+        fetchCourses,
         createUser,
         removeUser,
         removeCourse,
@@ -60,15 +65,48 @@ export default function TeacherPage() {
             )}
 
             {activeTab === "courses" && (
-                <CoursesTab
-                    courses={courses}
-                    refetchLogs={fetchLogs}
-                    logs={logs}
-                    logsLoading={loading}
-                    removeCourse={removeCourse}
-                    students={users}
-                    createCourse={createCourse}
-                />
+                <div className="space-y-6">
+                    <MessageCard
+                        courses={courses}
+                        onMessageSent={() => {
+                            console.log("Message sent");
+                        }}
+                    />
+                    <EnrollStudentCard
+                        courses={courses}
+                        students={users.filter(
+                            (user) => user.role === "student"
+                        )}
+                        onEnrollStudent={async (studentId, courseId) => {
+                            await patchEnrollment(courseId, studentId);
+                            await fetchCourses();
+                            console.log(
+                                `Teacher enrolling student ${studentId} in course ${courseId}`
+                            );
+                            // TODO: Implement actual enrollment API call
+                        }}
+                        onUnenrollStudent={async (studentId, courseId) => {
+                            await patchUnenrollment(courseId, studentId);
+                            await fetchCourses();
+                            console.log(
+                                `Teacher unenrolling student ${studentId} from course ${courseId}`
+                            );
+                            // TODO: Implement actual unenrollment API call
+                        }}
+                    />
+                    <CoursesTab
+                        courses={courses}
+                        refetchLogs={fetchLogs}
+                        logs={logs}
+                        logsLoading={loading}
+                        removeCourse={removeCourse}
+                        students={users.filter(
+                            (user) => user.role === "student"
+                        )}
+                        teachers={undefined}
+                        createCourse={createCourse}
+                    />
+                </div>
             )}
         </div>
     );

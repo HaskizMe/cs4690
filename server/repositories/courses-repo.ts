@@ -1,10 +1,20 @@
 import { ICourse, Course } from "../models/course";
 
 export const coursesRepository = {
-    getAllCourses: async (role: string, tenant: string, studentId: number) => {
+    getAllCourses: async (
+        role: string,
+        tenant: string,
+        studentId: number,
+        all?: boolean
+    ) => {
         try {
+            if (all) {
+                // Return all courses in tenant regardless of role
+                return await Course.find({ tenant });
+            }
+
             if (role === "admin") {
-                // Admins see all courses in their tenant
+                // Admins see all courses in their tenant (same as all=true)
                 return await Course.find({ tenant });
             }
             if (role === "teacher") {

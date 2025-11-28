@@ -9,13 +9,17 @@ export const coursesController = {
             const studentId = req.user?.userId
                 ? parseInt(req.user.userId)
                 : undefined;
+            const all = req.query.all === "true"; // Check for ?all=true query param
+
             if (!role || !tenant || !studentId) {
                 return res.status(401).json({ error: "Unauthorized" });
             }
+
             const courses = await coursesService.getAllCourses(
                 role,
                 tenant,
-                studentId
+                studentId,
+                all
             );
             res.json(courses);
         } catch (error) {
@@ -63,15 +67,30 @@ export const coursesController = {
         try {
             const role = req.user?.role;
             const tenant = req.user?.tenant;
-            const courseId = req.params.courseId;
-            const studentId = req.user?.userId
+            const currentUserId = req.user?.userId
                 ? parseInt(req.user.userId)
                 : undefined;
+            const courseId = req.params.courseId;
+            const targetUserId = req.params.userId
+                ? parseInt(req.params.userId)
+                : undefined;
+
+            if (!currentUserId || !targetUserId) {
+                return res.status(400).json({ error: "Invalid user ID" });
+            }
+
+            // Authorization: students can only enroll themselves
+            if (role === "student" && currentUserId !== targetUserId) {
+                return res.status(403).json({
+                    error: "Unauthorized: Students can only enroll themselves",
+                });
+            }
+
             const course = await coursesService.enrollStudent(
                 courseId,
                 role,
                 tenant,
-                studentId
+                targetUserId
             );
             res.json(course);
         } catch (error: any) {
@@ -86,15 +105,30 @@ export const coursesController = {
         try {
             const role = req.user?.role;
             const tenant = req.user?.tenant;
-            const courseId = req.params.courseId;
-            const studentId = req.user?.userId
+            const currentUserId = req.user?.userId
                 ? parseInt(req.user.userId)
                 : undefined;
+            const courseId = req.params.courseId;
+            const targetUserId = req.params.userId
+                ? parseInt(req.params.userId)
+                : undefined;
+
+            if (!currentUserId || !targetUserId) {
+                return res.status(400).json({ error: "Invalid user ID" });
+            }
+
+            // Authorization: students can only unenroll themselves
+            if (role === "student" && currentUserId !== targetUserId) {
+                return res.status(403).json({
+                    error: "Unauthorized: Students can only unenroll themselves",
+                });
+            }
+
             const course = await coursesService.unenrollStudent(
                 courseId,
                 role,
                 tenant,
-                studentId
+                targetUserId
             );
             res.json(course);
         } catch (error: any) {

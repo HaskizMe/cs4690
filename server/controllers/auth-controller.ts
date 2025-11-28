@@ -77,7 +77,21 @@ export const authController = {
     validateToken: async (req: Request, res: Response) => {
         try {
             const token = jwtUtils.extractToken(req.headers.authorization!);
-            jwtUtils.verifyToken(token!);
+            if (!token) {
+                return res.status(401).json({
+                    success: false,
+                    message: "No token provided",
+                });
+            }
+
+            const decoded = jwtUtils.verifyToken(token);
+            if (!decoded) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Token is invalid or expired",
+                });
+            }
+
             res.status(200).json({
                 success: true,
                 message: "Token is valid",

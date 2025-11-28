@@ -32,6 +32,13 @@ import { useAuth } from "../contexts/use-auth";
 import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { useParams } from "react-router";
 
 interface CoursesTabProps {
@@ -47,6 +54,8 @@ interface CoursesTabProps {
         tenant: string,
         enrolledStudents: number[]
     ) => Promise<void>;
+
+    teachers?: User[];
 }
 
 export default function CoursesTab({
@@ -57,6 +66,7 @@ export default function CoursesTab({
     removeCourse,
     students,
     createCourse,
+    teachers,
 }: CoursesTabProps) {
     const { school } = useParams();
     const { user } = useAuth();
@@ -66,6 +76,7 @@ export default function CoursesTab({
     const [createCourseDialogOpen, setCreateCourseDialogOpen] = useState(false);
     const [courseName, setCourseName] = useState("");
     const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
+    const [selectedTeacher, setSelectedTeacher] = useState<string>("");
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
 
@@ -75,23 +86,42 @@ export default function CoursesTab({
     };
 
     const handleCreateCourse = async () => {
-        if (!createCourse || !user?.id || !school) {
+        if (!createCourse || !school) {
             console.error("Missing required data:", {
                 hasCreateCourse: !!createCourse,
-                userId: user?.id,
                 school,
             });
             return;
         }
+
+        // Determine the professor ID based on user role
+        let professorId: string;
+        if (user?.role === "admin") {
+            // Admin must select a teacher
+            if (!selectedTeacher) {
+                console.error("Admin must select a teacher");
+                return;
+            }
+            professorId = selectedTeacher;
+        } else {
+            // Teacher creates course for themselves
+            if (!user?.id) {
+                console.error("Teacher ID not found");
+                return;
+            }
+            professorId = user.id.toString();
+        }
+
         try {
             await createCourse(
-                user.id.toString(),
+                professorId,
                 courseName,
                 school,
                 selectedStudents
             );
             setCourseName("");
             setSelectedStudents([]);
+            setSelectedTeacher("");
             setCreateCourseDialogOpen(false);
         } catch (error) {
             console.error("Failed to create course:", error);
@@ -119,103 +149,151 @@ export default function CoursesTab({
                             View and manage all courses in the system
                         </CardDescription>
                     </div>
-                    {user && user.role === "teacher" && (
-                        <Dialog
-                            open={createCourseDialogOpen}
-                            onOpenChange={setCreateCourseDialogOpen}
-                        >
-                            <DialogTrigger asChild>
-                                <Button className="gap-2">
-                                    <Plus className="h-4 w-4" />
-                                    Create Course
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-md">
-                                <DialogHeader>
-                                    <DialogTitle>Create New Course</DialogTitle>
-                                    <DialogDescription>
-                                        Add a new course and select students to
-                                        enroll
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="course-name">
-                                            Course Name
-                                        </Label>
-                                        <Input
-                                            id="course-name"
-                                            placeholder="e.g., Introduction to CS"
-                                            value={courseName}
-                                            onChange={(e) =>
-                                                setCourseName(e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Select Students</Label>
-                                        <div className="border rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
-                                            {students.length === 0 ? (
-                                                <p className="text-sm text-muted-foreground">
-                                                    No students available
-                                                </p>
-                                            ) : (
-                                                students.map((student) => (
-                                                    <div
-                                                        key={student.id}
-                                                        className="flex items-center space-x-2"
+                    {user &&
+                        (user.role === "teacher" || user.role === "admin") && (
+                            <Dialog
+                                open={createCourseDialogOpen}
+                                onOpenChange={setCreateCourseDialogOpen}
+                            >
+                                <DialogTrigger asChild>
+                                    <Button className="gap-2">
+                                        <Plus className="h-4 w-4" />
+                                        Create Course
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-md">
+                                    <DialogHeader>
+                                        <DialogTitle>
+                                            Create New Course
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            Add a new course and select students
+                                            to enroll
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="course-name">
+                                                Course Name
+                                            </Label>
+                                            <Input
+                                                id="course-name"
+                                                placeholder="e.g., Introduction to CS"
+                                                value={courseName}
+                                                onChange={(e) =>
+                                                    setCourseName(
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                        {/* Teacher Selection - Only show for admins */}
+                                        {user?.role === "admin" &&
+                                            teachers &&
+                                            teachers.length > 0 && (
+                                                <div className="space-y-2">
+                                                    <Label htmlFor="teacher-select">
+                                                        Assign Teacher
+                                                    </Label>
+                                                    <Select
+                                                        value={selectedTeacher}
+                                                        onValueChange={
+                                                            setSelectedTeacher
+                                                        }
                                                     >
-                                                        <input
-                                                            type="checkbox"
-                                                            id={`student-${student.id}`}
-                                                            checked={selectedStudents.includes(
-                                                                Number(
-                                                                    student.id
+                                                        <SelectTrigger id="teacher-select">
+                                                            <SelectValue placeholder="Select a teacher" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {teachers.map(
+                                                                (teacher) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            teacher.id
+                                                                        }
+                                                                        value={teacher.id.toString()}
+                                                                    >
+                                                                        {
+                                                                            teacher.username
+                                                                        }
+                                                                    </SelectItem>
                                                                 )
                                                             )}
-                                                            onChange={() =>
-                                                                toggleStudent(
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                            )}
+                                        <div className="space-y-2">
+                                            <Label>Select Students</Label>
+                                            <div className="border rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                                                {students.length === 0 ? (
+                                                    <p className="text-sm text-muted-foreground">
+                                                        No students available
+                                                    </p>
+                                                ) : (
+                                                    students.map((student) => (
+                                                        <div
+                                                            key={student.id}
+                                                            className="flex items-center space-x-2"
+                                                        >
+                                                            <input
+                                                                type="checkbox"
+                                                                id={`student-${student.id}`}
+                                                                checked={selectedStudents.includes(
                                                                     Number(
                                                                         student.id
                                                                     )
-                                                                )
-                                                            }
-                                                            className="w-4 h-4"
-                                                        />
-                                                        <Label
-                                                            htmlFor={`student-${student.id}`}
-                                                            className="cursor-pointer text-sm font-normal"
-                                                        >
-                                                            {student.username}
-                                                        </Label>
-                                                    </div>
-                                                ))
-                                            )}
+                                                                )}
+                                                                onChange={() =>
+                                                                    toggleStudent(
+                                                                        Number(
+                                                                            student.id
+                                                                        )
+                                                                    )
+                                                                }
+                                                                className="w-4 h-4"
+                                                            />
+                                                            <Label
+                                                                htmlFor={`student-${student.id}`}
+                                                                className="cursor-pointer text-sm font-normal"
+                                                            >
+                                                                {
+                                                                    student.username
+                                                                }
+                                                            </Label>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
                                         </div>
+                                        <DialogFooter>
+                                            <Button
+                                                variant="outline"
+                                                onClick={() =>
+                                                    setCreateCourseDialogOpen(
+                                                        false
+                                                    )
+                                                }
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                onClick={handleCreateCourse}
+                                                disabled={
+                                                    !courseName.trim() ||
+                                                    selectedStudents.length ===
+                                                        0 ||
+                                                    (user?.role === "admin" &&
+                                                        !selectedTeacher)
+                                                }
+                                            >
+                                                Create Course
+                                            </Button>
+                                        </DialogFooter>
                                     </div>
-                                    <DialogFooter>
-                                        <Button
-                                            variant="outline"
-                                            onClick={() =>
-                                                setCreateCourseDialogOpen(false)
-                                            }
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            onClick={handleCreateCourse}
-                                            disabled={
-                                                !courseName.trim() ||
-                                                selectedStudents.length === 0
-                                            }
-                                        >
-                                            Create Course
-                                        </Button>
-                                    </DialogFooter>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                    )}
+                                </DialogContent>
+                            </Dialog>
+                        )}
                 </div>
             </CardHeader>
             <CardContent>
