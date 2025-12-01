@@ -58,7 +58,15 @@ export function MessageCard({ courses, onMessageSent }: MessageCardProps) {
 
         setIsSubmitting(true);
         try {
-            const date = new Date().toISOString().split("T")[0];
+            const date = new Date().toLocaleString("en-US", {
+                month: "numeric",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+            });
             await postLog(selectedCourseId, date, message.trim());
 
             // Clear form after successful submission

@@ -24,7 +24,7 @@ export default function TeacherPage() {
     } = useData(activeTab);
 
     return (
-        <div className="w-full mx-auto p-8 space-y-8">
+        <div className="w-5xl mx-auto p-8 space-y-8">
             <div>
                 <h1 className="text-4xl font-bold">Teacher Dashboard</h1>
                 <p className="text-muted-foreground mt-2">

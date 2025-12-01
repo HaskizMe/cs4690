@@ -435,7 +435,7 @@ export default function CoursesTab({
                                     >
                                         <div className="flex justify-between items-start">
                                             <span className="font-medium text-sm">
-                                                Student ID: {log.uvu_id}
+                                                School ID: {log.uvu_id}
                                             </span>
                                             <span className="text-xs text-muted-foreground">
                                                 {log.date}

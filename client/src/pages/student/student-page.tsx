@@ -60,7 +60,7 @@ export default function StudentPage() {
 
     const selectedCourse = myCourses.find((c) => c._id === selectedCourseId);
     return (
-        <div className="w-3xl mx-auto p-8 space-y-8">
+        <div className="w-5xl mx-auto p-8 space-y-8">
             <div>
                 <h1 className="text-4xl font-bold">Student Dashboard</h1>
                 <p className="text-muted-foreground mt-2">

@@ -42,8 +42,6 @@ export function EnrollStudentCard({
         student?: string;
     }>({});
 
-    console.log(user?.id);
-
     const isStudentPage = students === undefined; // If no students prop, this is student page
 
     // Get the effective student ID (current user or selected student)
