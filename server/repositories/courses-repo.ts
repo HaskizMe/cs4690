@@ -1,18 +1,38 @@
-import { Schema, model } from "mongoose";
-import { ICourse } from "../models/course";
-
-const courseSchema = new Schema<ICourse>({
-    id: { type: String, required: true, unique: true },
-    display: { type: String, required: true },
-});
-
-export const Course = model<ICourse>("courses", courseSchema);
+import { ICourse, Course } from "../models/course";
 
 export const coursesRepository = {
-    getAllCourses: async () => {
+    getAllCourses: async (
+        role: string,
+        tenant: string,
+        studentId: number,
+        all?: boolean
+    ) => {
         try {
-            const courses = await Course.find();
-            return courses;
+            if (all) {
+                // Return all courses in tenant regardless of role
+                return await Course.find({ tenant });
+            }
+
+            if (role === "admin") {
+                // Admins see all courses in their tenant (same as all=true)
+                return await Course.find({ tenant });
+            }
+            if (role === "teacher") {
+                // Teachers see all courses they teach
+                return await Course.find({
+                    tenant,
+                    professor_id: studentId,
+                });
+            }
+            if (role === "student") {
+                // Students only see courses they're enrolled in
+                return await Course.find({
+                    tenant,
+                    enrolled_students: studentId,
+                });
+            }
+            // Fallback
+            return await Course.find({ tenant });
         } catch (error) {
             console.error("Error fetching courses:", error);
             throw error;
@@ -24,7 +44,7 @@ export const coursesRepository = {
         } catch (error: any) {
             console.error("Error creating course:", error);
             if (error.code === 11000) {
-                const err = new Error("Course with this ID already exists");
+                const err = new Error("Course with this name already exists");
                 (err as any).statusCode = 409;
                 throw err;
             }
@@ -33,9 +53,42 @@ export const coursesRepository = {
     },
     deleteCourse: async (courseId: string) => {
         try {
-            return await Course.deleteOne({ id: courseId });
+            return await Course.deleteOne({ _id: courseId });
         } catch (error) {
             console.error("Error deleting course:", error);
+            throw error;
+        }
+    },
+    enrollStudent: async (courseId: string, studentId: number) => {
+        try {
+            return await Course.findByIdAndUpdate(
+                courseId,
+                { $addToSet: { enrolled_students: studentId } },
+                { new: true }
+            );
+        } catch (error) {
+            console.error("Error enrolling student:", error);
+            throw error;
+        }
+    },
+    unenrollStudent: async (courseId: string, studentId: number) => {
+        try {
+            return await Course.findByIdAndUpdate(
+                courseId,
+                { $pull: { enrolled_students: studentId } },
+                { new: true }
+            );
+        } catch (error) {
+            console.error("Error unenrolling student:", error);
+            throw error;
+        }
+    },
+
+    getCourseById: async (courseId: string) => {
+        try {
+            return await Course.findById(courseId);
+        } catch (error) {
+            console.error("Error fetching course:", error);
             throw error;
         }
     },

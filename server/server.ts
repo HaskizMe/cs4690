@@ -2,8 +2,12 @@ import express, { Express, Request, Response } from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
+import cors from "cors";
 import { coursesController } from "./controllers/courses-controller";
 import { logsController } from "./controllers/logs-controller";
+import { authController } from "./controllers/auth-controller";
+import { usersController } from "./controllers/users-controller";
+import { authMiddleware, requireRole } from "./middleware/auth-middleware";
 
 // Load environment variables
 dotenv.config();
@@ -12,6 +16,7 @@ const app: Express = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../public")));
 
@@ -25,13 +30,44 @@ mongoose
     .then(() => console.log("Connected to MongoDB"))
     .catch((err) => console.error("MongoDB connection error:", err));
 
-// Routes
-app.get("/api/courses", coursesController.getCourses);
-app.post("/api/courses", coursesController.addCourse);
-app.delete("/api/courses/:courseId", coursesController.deleteCourse);
-app.get("/api/logs", logsController.getLogs);
-app.post("/api/logs", logsController.addLog);
-app.delete("/api/logs/:logId", logsController.deleteLog);
+// Auth Routes (no middleware required)
+app.post("/api/auth/login", authController.login);
+app.post("/api/auth/register", authController.register);
+app.post("/api/auth/logout", authController.logout);
+app.post("/api/auth/validate-token", authController.validateToken);
+
+// Auth Routes (require authentication)
+app.delete(
+    "/api/auth/users/:userId",
+    authMiddleware,
+    authController.deleteUser
+);
+
+// Protected Routes (require authentication)
+app.get("/api/courses", authMiddleware, coursesController.getCourses);
+app.post("/api/courses", authMiddleware, coursesController.addCourse);
+app.delete(
+    "/api/courses/:courseId",
+    authMiddleware,
+    coursesController.deleteCourse
+);
+app.patch(
+    "/api/courses/:courseId/enroll/:userId",
+    authMiddleware,
+    coursesController.enrollStudent
+);
+app.patch(
+    "/api/courses/:courseId/unenroll/:userId",
+    authMiddleware,
+    coursesController.unenrollStudent
+);
+app.get("/api/logs/:courseId", authMiddleware, logsController.getLogs);
+app.post("/api/logs/:courseId", authMiddleware, logsController.addLog);
+app.delete("/api/logs/:logId", authMiddleware, logsController.deleteLog);
+
+// Users Routes (require authentication and role-based access)
+app.get("/api/users", authMiddleware, usersController.getUsers);
+app.get("/api/users/:userId", authMiddleware, usersController.getUserById);
 
 // Serve frontend
 app.get("/", (req: Request, res: Response) => {
