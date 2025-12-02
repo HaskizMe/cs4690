@@ -35,57 +35,43 @@ async function seedUsers() {
     // Seed admin users
     const users = [
         {
-            id: generateUniqueId(),
+            id: 10000000,
             username: "root_uvu",
             password: "willy",
             role: "admin",
             tenant: "uvu",
         },
         {
-            id: generateUniqueId(),
+            id: 20000000,
             username: "root_uofu",
             password: "swoopy",
             role: "admin",
             tenant: "uofu",
         },
         {
-            id: 11111111,
+            id: 11000000,
             username: "professor_uvu",
             password: "willy",
             role: "teacher",
             tenant: "uvu",
         },
         {
-            id: 22222222,
+            id: 21000000,
             username: "professor_uofu",
             password: "swoopy",
             role: "teacher",
             tenant: "uofu",
         },
         {
-            id: 33333333,
+            id: 12000000,
             username: "student_uvu",
             password: "willy",
             role: "student",
             tenant: "uvu",
         },
         {
-            id: 66666666,
-            username: "student_uvu2",
-            password: "willy",
-            role: "student",
-            tenant: "uvu",
-        },
-        {
-            id: 44444444,
+            id: 22000000,
             username: "student_uofu",
-            password: "swoopy",
-            role: "student",
-            tenant: "uofu",
-        },
-        {
-            id: 55555555,
-            username: "student_uofu2",
             password: "swoopy",
             role: "student",
             tenant: "uofu",
@@ -101,27 +87,39 @@ async function seedCourses() {
     console.log("Cleared courses collection");
     const courses = [
         {
-            course_name: "CS 101",
-            enrolled_students: [33333333, 66666666],
-            professor_id: 11111111,
+            course_name: "CS 3380",
+            enrolled_students: [12000000],
+            professor_id: 11000000,
             tenant: "uvu",
         },
         {
-            course_name: "CS 103",
-            enrolled_students: [33333333],
-            professor_id: 11111111,
+            course_name: "CS 4660",
+            enrolled_students: [12000000],
+            professor_id: 11000000,
             tenant: "uvu",
         },
         {
-            course_name: "CS 104",
-            enrolled_students: [44444444, 55555555],
-            professor_id: 22222222,
+            course_name: "CS 4690",
+            enrolled_students: [12000000],
+            professor_id: 11000000,
+            tenant: "uvu",
+        },
+        {
+            course_name: "CS 3380",
+            enrolled_students: [22000000],
+            professor_id: 21000000,
             tenant: "uofu",
         },
         {
-            course_name: "CS 105",
-            enrolled_students: [44444444, 55555555],
-            professor_id: 22222222,
+            course_name: "CS 4660",
+            enrolled_students: [22000000],
+            professor_id: 21000000,
+            tenant: "uofu",
+        },
+        {
+            course_name: "CS 4690",
+            enrolled_students: [22000000],
+            professor_id: 21000000,
             tenant: "uofu",
         },
     ];
@@ -133,22 +131,109 @@ async function seedCourses() {
 async function seedLogs(courses: any[]) {
     await Log.deleteMany({});
     console.log("Cleared logs collection");
+
+    // Map course names to indices
+    // UVU courses: CS 3380 (0), CS 4660 (1), CS 4690 (2)
+    // UofU courses: CS 3380 (3), CS 4660 (4), CS 4690 (5)
+    const getCourseIndex = (courseName: string, tenant: string) => {
+        const courseMap = {
+            cs3380: tenant === "uvu" ? 0 : 3,
+            cs4660: tenant === "uvu" ? 1 : 4,
+            cs4690: tenant === "uvu" ? 2 : 5,
+        };
+        return courseMap[courseName as keyof typeof courseMap];
+    };
+
     const logs = [
+        // UVU logs
         {
-            course_id: courses[0]._id.toString(),
-            uvu_id: "33333333",
-            date: "2025-11-26",
+            course_id: courses[getCourseIndex("cs4660", "uvu")]._id.toString(),
+            uvu_id: "12000000",
+            date: "1/23/2021 1:23:36 PM",
             tenant: "uvu",
-            text: "Hello World from student_uvu",
+            text: "Initial comment. Hello World",
         },
         {
-            course_id: courses[1]._id.toString(),
-            uvu_id: "44444444",
-            date: "2025-11-26",
+            course_id: courses[getCourseIndex("cs4660", "uvu")]._id.toString(),
+            uvu_id: "12000000",
+            date: "1/24/2021 2:43:12 PM",
+            tenant: "uvu",
+            text: "MongoDB is looking really good, still need to get atlas up and running.",
+        },
+        {
+            course_id: courses[getCourseIndex("cs4660", "uvu")]._id.toString(),
+            uvu_id: "12000000",
+            date: "1/27/2021 5:58:10 PM",
+            tenant: "uvu",
+            text: "Atlas is up and running",
+        },
+        {
+            course_id: courses[getCourseIndex("cs3380", "uvu")]._id.toString(),
+            uvu_id: "12000000",
+            date: "1/28/2021 3:53:52 PM",
+            tenant: "uvu",
+            text: "Learned about clusters\n\nStill trying to wrap my mind around the concept",
+        },
+        {
+            course_id: courses[getCourseIndex("cs4660", "uvu")]._id.toString(),
+            uvu_id: "12000000",
+            date: "1/8/2022, 7:41:28 PM",
+            tenant: "uvu",
+            text: "Hopefully we get better at testing when we start working on Cypress",
+        },
+        {
+            course_id: courses[getCourseIndex("cs4660", "uvu")]._id.toString(),
+            uvu_id: "12000000",
+            date: "1/10/2022, 7:27:40 PM",
+            tenant: "uvu",
+            text: "Initial jquery practicum works.",
+        },
+
+        // UofU logs (same content but for UofU tenant)
+        {
+            course_id: courses[getCourseIndex("cs4660", "uofu")]._id.toString(),
+            uvu_id: "22000000",
+            date: "1/23/2021 1:23:36 PM",
             tenant: "uofu",
-            text: "Hello World from student_uofu",
+            text: "Initial comment. Hello World",
+        },
+        {
+            course_id: courses[getCourseIndex("cs4660", "uofu")]._id.toString(),
+            uvu_id: "22000000",
+            date: "1/24/2021 2:43:12 PM",
+            tenant: "uofu",
+            text: "MongoDB is looking really good, still need to get atlas up and running.",
+        },
+        {
+            course_id: courses[getCourseIndex("cs4660", "uofu")]._id.toString(),
+            uvu_id: "22000000",
+            date: "1/27/2021 5:58:10 PM",
+            tenant: "uofu",
+            text: "Atlas is up and running",
+        },
+        {
+            course_id: courses[getCourseIndex("cs3380", "uofu")]._id.toString(),
+            uvu_id: "22000000",
+            date: "1/28/2021 3:53:52 PM",
+            tenant: "uofu",
+            text: "Learned about clusters\n\nStill trying to wrap my mind around the concept",
+        },
+        {
+            course_id: courses[getCourseIndex("cs4660", "uofu")]._id.toString(),
+            uvu_id: "22000000",
+            date: "1/8/2022, 7:41:28 PM",
+            tenant: "uofu",
+            text: "Hopefully we get better at testing when we start working on Cypress",
+        },
+        {
+            course_id: courses[getCourseIndex("cs4660", "uofu")]._id.toString(),
+            uvu_id: "22000000",
+            date: "1/10/2022, 7:27:40 PM",
+            tenant: "uofu",
+            text: "Initial jquery practicum works.",
         },
     ];
+
     await Log.create(logs);
     console.log("✓ Seeded logs");
 }

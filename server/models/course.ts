@@ -7,7 +7,7 @@ export interface ICourse {
     tenant: string;
 }
 const courseSchema = new Schema<ICourse>({
-    course_name: { type: String, required: true, unique: true },
+    course_name: { type: String, required: true },
     enrolled_students: {
         type: [Number],
         default: [],
@@ -21,5 +21,8 @@ const courseSchema = new Schema<ICourse>({
         required: true,
     },
 });
+
+// Create compound unique index on course_name and tenant
+courseSchema.index({ course_name: 1, tenant: 1 }, { unique: true });
 
 export const Course = mongoose.model<ICourse>("courses", courseSchema);

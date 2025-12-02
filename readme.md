@@ -10,6 +10,7 @@
     > ```bash
     > brew services start mongodb-community
     > ```
-4. run `npm install`
-5. Run `npm run server`
-6. Open `http://localhost:3000` in your browser
+4. run `npm install` in both the `root` and `client` directories
+5. run `npm run seed` in the `root` directory to seed DB
+6. Run `npm run dev` in the `root` directory
+7. Open `http://localhost:5173` in your browser
