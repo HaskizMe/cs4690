@@ -4,4 +4,4 @@ MONGO_ADMIN_USER=<YOUR-MONGO-ADMIN-USER>
 MONGO_ADMIN_PASSWORD=<YOUR-MONGO-ADMIN-PASSWORD>
 
 # For local MongoDB instance uncomment this section out (optional, overrides Atlas credentials):
-# MONGO_URI=mongodb://localhost:27017/courses
+# MONGO_URI=mongodb://localhost:27017/mega_practicum_db
