@@ -34,14 +34,7 @@ export const logsRepository = {
                 query = { course_id: courseId, tenant, uvu_id: userId };
             }
 
-            console.log("Query:", query);
-
-            // Debug: Check all logs in the database
-            const allLogs = await Log.find({});
-            console.log("All logs in DB:", JSON.stringify(allLogs, null, 2));
-
             const logs = await Log.find(query);
-            console.log("Found logs:", logs);
             return logs;
         } catch (error) {
             console.error("Error fetching logs:", error);
