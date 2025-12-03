@@ -3,8 +3,11 @@ import mongoose from "mongoose";
 
 export const authRepo = {
     // Find user by username
-    findByUsername: async (username: string): Promise<IUser | null> => {
-        return User.findOne({ username: username.toLowerCase() });
+    findByUsernameAndTenant: async (
+        username: string,
+        tenant: string
+    ): Promise<IUser | null> => {
+        return User.findOne({ username: username.toLowerCase(), tenant });
     },
 
     // Find user by MongoDB _id or custom id field

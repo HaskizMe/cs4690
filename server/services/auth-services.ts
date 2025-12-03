@@ -27,7 +27,10 @@ export const authService = {
             }
 
             // Check if user already exists
-            const existingUser = await authRepo.findByUsername(username);
+            const existingUser = await authRepo.findByUsernameAndTenant(
+                username,
+                tenant
+            );
             if (existingUser) {
                 return {
                     success: false,
@@ -92,7 +95,10 @@ export const authService = {
             }
 
             // Find user by username
-            const user = await authRepo.findByUsername(username);
+            const user = await authRepo.findByUsernameAndTenant(
+                username,
+                tenant
+            );
             if (!user) {
                 return {
                     success: false,
