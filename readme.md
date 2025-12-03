@@ -12,5 +12,5 @@
     > ```
 4. run `npm install` in both the `root` and `client` directories
 5. run `npm run seed` in the `root` directory to seed DB
-6. Run `npm run dev` in the `root` directory
+6. Run `npm run dev` in the `root` directory to start the server and client
 7. Open `http://localhost:5173` in your browser
