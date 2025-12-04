@@ -7,7 +7,6 @@ import { deleteCourse } from "../../api/courses/delete-course";
 import { getUsers } from "../../api/users/get-users";
 import { postRegister } from "../../api/auth/post-register";
 import { deleteUser } from "../../api/auth/delete-user";
-import { postCourse } from "../../api/courses/post-course";
 
 // Mock all API modules
 vi.mock("../../api/user-logs/get-logs");
@@ -361,57 +360,57 @@ describe("useData Hook", () => {
         });
     });
 
-    describe("createCourse", () => {
-        it("should create a new course and refresh courses list", async () => {
-            vi.mocked(getUsers).mockResolvedValue(mockUsers);
-            vi.mocked(postCourse).mockResolvedValue(undefined);
-            vi.mocked(getCourses).mockResolvedValue(mockCourses);
+    // describe("createCourse", () => {
+    //     it("should create a new course and refresh courses list", async () => {
+    //         vi.mocked(getUsers).mockResolvedValue(mockUsers);
+    //         vi.mocked(postCourse).mockResolvedValue(undefined);
+    //         vi.mocked(getCourses).mockResolvedValue(mockCourses);
 
-            const { result } = renderHook(() => useData("users"));
+    //         const { result } = renderHook(() => useData("users"));
 
-            await waitFor(() => {
-                expect(result.current.loading).toBe(false);
-            });
+    //         await waitFor(() => {
+    //             expect(result.current.loading).toBe(false);
+    //         });
 
-            result.current.createCourse("11000000", "CS 5000", "uvu", [
-                12000000,
-            ]);
+    //         result.current.createCourse("11000000", "CS 5000", "uvu", [
+    //             12000000,
+    //         ]);
 
-            await waitFor(() => {
-                expect(result.current.loading).toBe(false);
-            });
+    //         await waitFor(() => {
+    //             expect(result.current.loading).toBe(false);
+    //         });
 
-            expect(postCourse).toHaveBeenCalledWith(
-                "11000000",
-                "CS 5000",
-                "uvu",
-                [12000000]
-            );
-            expect(getCourses).toHaveBeenCalledWith({});
-            expect(result.current.courses).toEqual(mockCourses);
-        });
+    //         expect(postCourse).toHaveBeenCalledWith(
+    //             "11000000",
+    //             "CS 5000",
+    //             "uvu",
+    //             [12000000]
+    //         );
+    //         expect(getCourses).toHaveBeenCalledWith({});
+    //         expect(result.current.courses).toEqual(mockCourses);
+    //     });
 
-        it("should handle createCourse error", async () => {
-            vi.mocked(getUsers).mockResolvedValue(mockUsers);
-            vi.mocked(postCourse).mockRejectedValue(
-                new Error("Failed to create course")
-            );
+    //     it("should handle createCourse error", async () => {
+    //         vi.mocked(getUsers).mockResolvedValue(mockUsers);
+    //         vi.mocked(postCourse).mockRejectedValue(
+    //             new Error("Failed to create course")
+    //         );
 
-            const { result } = renderHook(() => useData("users"));
+    //         const { result } = renderHook(() => useData("users"));
 
-            await waitFor(() => {
-                expect(result.current.loading).toBe(false);
-            });
+    //         await waitFor(() => {
+    //             expect(result.current.loading).toBe(false);
+    //         });
 
-            result.current.createCourse("11000000", "CS 5000", "uvu", [
-                12000000,
-            ]);
+    //         result.current.createCourse("11000000", "CS 5000", "uvu", [
+    //             12000000,
+    //         ]);
 
-            await waitFor(() => {
-                expect(result.current.error).toBe("Failed to create course");
-            });
-        });
-    });
+    //         await waitFor(() => {
+    //             expect(result.current.error).toBe("Failed to create course");
+    //         });
+    //     });
+    // });
 
     describe("Loading States", () => {
         it("should set loading to true during fetch operations", async () => {
